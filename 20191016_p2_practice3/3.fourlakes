@@ -1,0 +1,94 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	//A = dongting, B = hongze, C = fanyang, D = taihu
+
+	char a[4] = { '0' };
+	char b[4] = { '0' };
+	for (int i = 65; i < 69; i++)
+	{
+		a[0] = i;
+		for (int j = 65; j < 69; j++)
+		{
+			if (j == i)
+			{
+				continue;
+			}
+			a[1] = j;
+			for (int k = 65; k < 69; k++)
+			{
+				if (k == i || k == j)
+				{
+					continue;
+				}
+				a[2] = k;
+				for (int l = 65; l < 69; l++)
+				{
+					int check1 = 0;
+					if (l == i || l == j || l == k)
+					{
+						continue;
+					}
+					a[3] = l;
+					if (((a[0] == 'A') + (a[3] == 'B') + (a[2] == 'C')) == 1)
+					{
+						check1++;
+					}
+					if (((a[0] == 'B') + (a[1] == 'C') + (a[2] == 'D')) == 1)
+					{
+						check1++;
+					}
+					if (((a[3] == 'B') + (a[2] == 'A')) == 1)
+					{
+						check1++;
+					}
+					if (((a[0] == 'C') + (a[1] == 'B') + (a[2] == 'A')) == 1)
+					{
+						check1++;
+					}
+					if (check1 == 4)
+					{
+						for (int y = 0; y < 4; y++)
+						{
+							b[y] = a[y];
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	for (int z = 0; z < 4; z++)
+	{
+		if (b[z] == 'C')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+	for (int z = 0; z < 4; z++)
+	{
+		if (b[z] == 'A')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+	for (int z = 0; z < 4; z++)
+	{
+		if (b[z] == 'D')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+	for (int z = 0; z < 4; z++)
+	{
+		if (b[z] == 'B')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+}
