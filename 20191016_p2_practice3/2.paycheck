@@ -1,0 +1,133 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+int main()
+{
+	int id = 0;
+	int total = 0;
+	double a = 0;
+	double b = 0;
+	double c = 0;
+	double first = 0;
+	double second = 0;
+	double third = 0;
+	for (int i = 0; i < 3; i++)
+	{
+		
+		cin >> id;
+		switch (id)
+		{
+			case 1: 
+			{
+				cin >> total;
+				for (int j = 0; j < total; j++)
+				{
+					char type = 'a';
+					double amount = 0;
+					cin >> type;
+					switch (type)
+					{
+						case 'A':
+						{
+							cin >> amount;
+							a += amount;
+							first += amount;
+							break;
+						}
+						case 'B':
+						{
+							cin >> amount;
+							b += amount;
+							first += amount;
+							break;
+						}
+						case 'C':
+						{
+							cin >> amount;
+							c += amount;
+							first += amount;
+							break;
+						}
+					}
+				}
+				break;
+			}
+			case 2:
+			{
+				cin >> total;
+				for (int j = 0; j < total; j++)
+				{
+					char type = 'a';
+					double amount = 0;
+					cin >> type;
+					switch (type)
+					{
+						case 'A':
+						{
+							cin >> amount;
+							a += amount;
+							second+= amount;
+							break;
+						}
+						case 'B':
+						{
+							cin >> amount;
+							b += amount;
+							second += amount;
+							break;
+						}
+						case 'C':
+						{
+							cin >> amount;
+							c += amount;
+							second += amount;
+							break;
+						}
+					}
+				}
+				break;
+			}
+			case 3:
+			{
+				cin >> total;
+				for (int j = 0; j < total; j++)
+				{
+					char type = 'a';
+					double amount = 0;
+					cin >> type;
+					switch (type)
+					{
+						case 'A':
+						{
+							cin >> amount;
+							a += amount;
+							third += amount;
+							break;
+						}
+						case 'B':
+						{
+							cin >> amount;
+							b++;
+							third += amount;
+							break;
+						}
+						case 'C':
+						{
+							cin >> amount;
+							c += amount;
+							third += amount;
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+	cout << fixed << setprecision(2) << 1 << ' ' << first << endl;
+	cout << 2 << ' ' << second << endl;
+	cout << 3 << ' ' << third << endl;
+	cout << "A " << a << endl;
+	cout << "B " << b << endl;
+	cout << "C " << c << endl;
+}
