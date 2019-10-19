@@ -1,0 +1,112 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	char a[5] = { '0' };
+	char b[5] = { '0' };
+	for (int i = 65; i < 70; i++)
+	{
+		a[0] = i;
+		for (int j = 65; j < 70; j++)
+		{
+			if (j == i)
+			{
+				continue;
+			}
+			a[1] = j;
+			for (int k = 65; k < 70; k++)
+			{
+				if (k == i || k == j)
+				{
+					continue;
+				}
+				a[2] = k;
+				for (int l = 65; l < 70; l++)
+				{
+					if (l == i || l == j || l == k)
+					{
+						continue;
+					}
+					a[3] = l;
+					for (int m = 65; m < 70; m++)
+					{
+						if (m == i || m == j || m == k || m == l)
+						{
+							continue;
+						}
+						a[4] = m;
+						int check1 = 0;
+						if (((a[1] == 'B') + (a[2] == 'A')) == 1)
+						{
+							check1++;
+						}
+						if (((a[1] == 'B') + (a[3] == 'E')) == 1)
+						{
+							check1++;
+						}
+						if (((a[0] == 'C') + (a[1] == 'D')) == 1)
+						{
+							check1++;
+						}
+						if (((a[4] == 'C') + (a[2] == 'D')) == 1)
+						{
+							check1++;
+						}
+						if (((a[3] == 'E') + (a[0] == 'A')) == 1)
+						{
+							check1++;
+						}
+						if (check1 == 5)
+						{
+							for (int y = 0; y < 5; y++)
+							{
+								b[y] = a[y];
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	for (int z = 0; z < 5; z++)
+	{
+		if (b[z] == 'A')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+	for (int z = 0; z < 5; z++)
+	{
+		if (b[z] == 'B')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+	for (int z = 0; z < 5; z++)
+	{
+		if (b[z] == 'C')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+	for (int z = 0; z < 5; z++)
+	{
+		if (b[z] == 'D')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+	for (int z = 0; z < 5; z++)
+	{
+		if (b[z] == 'E')
+		{
+			cout << z + 1 << endl;
+			break;
+		}
+	}
+}
