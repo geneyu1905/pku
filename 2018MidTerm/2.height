@@ -1,0 +1,33 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	int n = 0;
+	while (cin >> n)
+	{
+		if (n == 0)
+		{
+			break;
+		}
+		int height[100] = { 0 };
+		int temp = 0;
+		for (int i = 0; i < n; i++)
+		{
+			cin >> height[i];
+		}
+		for (int j = 0; j < n; j++)
+		{
+			for (int k = 0; k < n - 1; k++)
+			{
+				if (height[k] > height[k + 1])
+				{
+					temp = height[k];
+					height[k] = height[k + 1];
+					height[k + 1] = temp;
+				}
+			}
+		}
+		int final = n / 2;
+		cout << height[final] << endl;
+	}
+}
