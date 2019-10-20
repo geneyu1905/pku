@@ -1,0 +1,22 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	int depth = 0;
+	int	jump = 0;
+	int drop = 0;
+	int sum = 0;
+	int day = 0;
+	cin >> depth >> jump >> drop;
+	for (;;)
+	{
+		day++;
+		sum += jump;
+		if (sum >= depth)
+		{
+			cout << day;
+			break;
+		}
+		sum -= drop;
+	}
+}
