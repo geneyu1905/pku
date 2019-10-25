@@ -1,0 +1,20 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	int count = 0;
+	char a[10][100] = { "0" };
+	while (cin)
+	{
+		cin >> a[count];
+		count++;
+	}
+	for (int n = count - 2; n >= 0; n--)
+	{
+		if (n != 0)
+			cout << a[n] << " ";
+		else
+			cout << a[n];
+	}
+	return 0;
+}
