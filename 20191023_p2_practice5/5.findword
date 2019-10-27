@@ -1,0 +1,84 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	char str[10000];
+	char word[200][40] = { " " };
+	int count[200] = { 0 };
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	int check1 = 0;
+	cin.getline(str, 10000);
+	for (int i = 0; i < 10000; i++) 
+	{
+		if (check1 == 0)
+		{
+			j = 0;
+		}
+		while ((str[i] >= 'A' && str[i] <= 'Z') || (str[i] >= 'a' && str[i] <= 'z') || str[i] == '\'') //输入单词
+		{
+			word[j][k] = str[i];
+			i++;
+			k++;
+			check1++;
+		}
+		k = 0;
+		j++;
+		while (true) //跳过无用字符
+		{
+			i++;
+			if ((str[i] >= 'A' && str[i] <= 'Z') || (str[i] >= 'a' && str[i] <= 'z'))
+			{
+				i--;
+				break;
+			}
+		}
+	}
+	for (int o = 0; o < j; o++) 
+	{
+		count[o] = 1;
+	}
+	for (int l = 0; l < j; l++) //排除同样的单词
+	{
+		if (count[l] == 0)
+		{
+			continue;
+		}
+		for (int n = l + 1; n < j; n++)
+		{
+			int m = 0;
+			int isSame = 1;
+			while (word[l][m] != '\0' || word[n][m] != '\0')
+			{
+				if (word[l][m] != word[n][m])
+				{
+					isSame = 0;
+					break;
+				}
+				m++;
+			}
+			if (isSame == 1)
+			{
+				count[n] = 0;
+				count[l]++;
+			}
+		}
+	}
+	for (int p = 0; p < j; p++)
+	{
+		if (count[p] == 0)
+		{
+			continue;
+		}
+		int q = 0;
+		while (word[p][q] != '\0')
+		{
+			cout << word[p][q];
+			q++;
+		}
+		cout << " " << count[p] << endl;
+	}
+	
+	
+}
