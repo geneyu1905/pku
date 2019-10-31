@@ -1,0 +1,82 @@
+#include <iostream>
+#include <cmath>
+#include <string>
+using namespace std;
+int main()
+{
+	string num1 = "0";
+	string num2 = "0";
+	int sys1 = 0;
+	int sys2 = 0;
+	int sys3 = 0;
+	int sum1 = 0;
+	int sum2 = 0;
+	int sum = 0;
+	int c[100] = { 0 };
+	int total1 = 1;
+	int total2 = 1;
+	int count3 = 0;
+	int a1 = 1;
+	int a2 = 1;
+	cin >> sys1 >> num1 >> sys2 >> num2 >> sys3;
+	
+	int length1 = num1.length();
+	int length2 = num2.length();
+	for (int i = 0; i < length1; i++)
+	{
+		for (int j = i; j < length1 - 1; j++)
+		{
+			total1 *= sys1;
+		}
+		if (num1[i] >= '0' && num1[i] <= '9')
+		{
+			sum1 += (num1[i] - '0') * total1;
+		}
+		else if (num1[i] >= 'a' && num1[i] <= 'f')
+		{
+			sum1 += (num1[i] - 'a' + 10) * total1;
+		}
+		total1 = 1;
+	}	
+
+	for (int l = 0; l < length2; l++)
+	{
+		for (int m = l; m < length2 - 1; m++)
+		{
+			total2 *= sys2;
+		}
+		if (num2[l] >= '0' && num2[l] <= '9')
+		{
+			sum2 += (num2[l] - '0') * total2;
+		}
+		else if (num2[l] >= 'a' && num2[l] <= 'f')
+		{
+			sum2 += (num2[l] - 'a' + 10) * total2;
+		}
+		total2 = 1;
+	}
+	
+	
+	sum = sum1 + sum2;
+	
+	
+	while (sum != 0)
+	{
+		c[count3] = sum % sys3;
+		sum /= sys3;
+		count3++;
+	}
+	for (int k = count3 - 1; k >= 0; k--)
+	{
+		if (c[k] >= 10)
+		{
+			cout << (char)(c[k] + 55 - 'A' + 'a');
+		}
+		else
+		{
+			cout << c[k];
+		}
+	}
+	return 0;
+	
+}
