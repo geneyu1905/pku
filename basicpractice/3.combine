@@ -1,0 +1,36 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	int a[10] = { 0 };
+	int b[10] = { 0 };
+	int c[20] = { 0 };
+	for (int i = 0; i < 10; i++)
+	{
+		cin >> a[i];
+	}
+	for (int i = 0; i < 10; i++)
+	{
+		cin >> b[i];
+	}
+	int m = 0;
+	int n = 0;
+	for (int i = 0; i < 20; i++)
+	{
+		if (a[m] <= b[n] && m != 10 || n == 10)
+		{
+			c[i] = a[m];
+			m++;
+		}
+		else if (a[m] > b[n] && n != 10 || m == 10)
+		{
+			c[i] = b[n];
+			n++;
+		}
+		cout << c[i];
+
+		if (i != 19)
+			cout << " ";
+	}
+	return 0;
+}
