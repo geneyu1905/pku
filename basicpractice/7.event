@@ -1,0 +1,58 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+    struct time
+    {
+        int start;
+        int end;
+    };
+    int count1 = 0;
+    time group[1000],temp;
+    int minute[10000] = {0};
+    int n = 0;
+    cin >> n;
+    for (int i = 0; i < n; i++) //输入活动开始时间与结束时间
+    {
+        cin >> group[i].start >> group[i].end;
+    }
+
+    for (int i = 0; i < n; i++) //根据结束时间排序
+    {
+        for (int j = 0; j < n - 1; j++)
+        {
+            if (group[j].end > group[j+1].end)
+            {
+                temp = group[j];
+                group[j] = group[j+1];
+                group[j+1] = temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        bool isTaken = false;
+        int j = 0;
+        j = group[i].start;
+        while(j < group[i].end ) //检查那段时间有没有人在办活动
+        {
+            if (minute[j] == 1)
+            {
+                isTaken = true;
+                break;
+            }
+            j++;
+        }
+        j = group[i].start;
+        if (isTaken == false) //如果没有人办活动，就可以占用
+        {
+            while (j < group[i].end)
+            {
+                minute[j]++;
+                j++;
+            }
+            count1++;
+        }
+    }
+    cout << count1 << endl;
