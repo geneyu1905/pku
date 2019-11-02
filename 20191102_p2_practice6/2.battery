@@ -1,0 +1,33 @@
+#include <iostream>
+#include <stdlib.h>
+#include <iomanip>
+using namespace std;
+int main()
+{
+	int numOfBattery = 0;
+	while (cin >> numOfBattery)
+	{
+		int battery[2000] = { 0 };
+		int max = 0;
+		int sum = 0;
+		double time = 0;
+		for (int i = 0; i < numOfBattery; i++)
+		{
+			cin >> battery[i];
+
+			if (battery[i] > max)
+			{
+				max = battery[i];
+			}
+			sum += battery[i];
+		}
+		
+		if (sum - max >= max)
+		{
+			time = double(sum) / 2;
+		}
+		else
+			time = sum - max;
+		cout << fixed << setprecision(1) << time << endl;
+	}
+}
