@@ -1,0 +1,39 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	int minute[200] = { 0 };
+	int n = 0;
+	cin >> n;
+	
+	for (int i = 0; i < n; i++) //把人数对应到数组里
+	{
+		int timeArrive = 0;
+		cin >> timeArrive;
+		if (timeArrive <= 60)
+		{
+			minute[60]+= 10;
+		}
+		else if (timeArrive <= 180)
+		{
+			minute[timeArrive] += 10;
+		}
+	}
+
+	for (int i = 60; i <= 180; i++) //让数组只能有0,1 且1代表当时有病人
+	{
+		while (minute[i] > 1)
+		{
+			minute[i]--;
+			minute[i + 1]++;
+		}
+	}
+
+	int sum = 0;
+	for (int i = 60; i < 180; i++)
+	{
+		sum += minute[i];
+	}
+
+	cout << sum / 10 << endl;
+}
