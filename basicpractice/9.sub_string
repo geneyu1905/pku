@@ -1,0 +1,31 @@
+#include <iostream>
+#include <cstring>
+#include <stdlib.h>
+using namespace std;
+int main()
+{
+	char str1[55] = { " " };
+	char str2[55] = { " " };
+	cin >> str1 >> str2;
+
+	int len_str1 = strlen(str1);
+	int len_str2 = strlen(str2);
+
+	int j = 0;
+
+	for (int i = 0; i < len_str2; i++)
+	{
+		if (str2[i] != str1[j])
+		{
+			j = 0;
+			continue;
+		}
+		j++;
+		if (j == len_str1)
+		{
+			cout << i - len_str1 + 1 << endl;
+		}
+	}
+	
+	
+}
