@@ -1,0 +1,47 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+int main()
+{
+	char mainstr[100] = { " " };
+	char str1[20], str2[20] = { " " };
+	char z = '0';
+
+	cin.get(mainstr, 100, ',');
+	cin >> z;
+	cin.get(str1, 20, ',');
+	cin >> z;
+	cin.get(str2, 20);
+
+	int j = 0;
+	int k = strlen(str1) - 2;
+	int m = 0;
+	int n = strlen(mainstr) - 1;
+	int count1 = 0;
+
+	for (m = 0; m < strlen(mainstr); m++)
+	{
+		if (str1[j] == mainstr[m])j++;
+		if (j == strlen(str1))
+		{
+			count1++;
+			break;
+		}
+
+	}
+
+	for (n = strlen(mainstr) - 1; n >= 0; n--)
+	{
+		if (str2[k] == mainstr[n])k--;
+		if (k == -1)
+		{
+			count1++;
+			break;
+		}
+	}
+
+	if (count1 == 2)
+	{
+		cout << n - m - 1 << endl;
+	}
+	else cout << "-1" << endl;
