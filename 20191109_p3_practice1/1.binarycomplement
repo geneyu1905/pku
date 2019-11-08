@@ -1,0 +1,55 @@
+#include <iostream>
+#include <cstring>
+#include <cmath>
+using namespace std;
+int main()
+{
+	int num = 0;
+	while (cin >> num)
+	{
+		int str[32] = { 0 };
+		memset(str, 0, sizeof(str));
+		
+		//***把数字转换为二进制数组***
+		int i = 31;
+		int num1 = abs(num);
+
+		while (true)
+		{
+			if (num1 / 2 == 0)
+			{
+				str[i] = num1;
+				break;
+			}
+			int remain = num1 % 2;
+			str[i] = remain;
+			i--;
+			num1 /= 2;
+		}
+
+		if (num < 0) //***负数补码取反码后最后一位加一***
+		{
+			for (int j = 0; j < 32; j++)
+			{
+				if (str[j] == 0)str[j] = 1;
+				else str[j] = 0;
+			}
+			str[31] += 1;
+		}
+
+		for (int j = 31; j >= 0; j--) //***二进制加法***
+		{
+			if (str[j] == 2)
+			{
+				str[j] = 0;
+				str[j - 1]++;
+			}
+		}
+
+		for (int j = 0; j < 32; j++)
+		{
+			cout << str[j];
+		}
+		cout << endl;
+	}
+}
