@@ -1,0 +1,23 @@
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+int main()
+{
+	char num[15] = { "0" };
+	int j = 0;
+	while (cin >> num[j])
+	{
+		j++;
+	}
+	
+	for (int i = 0; i < strlen(num); i++)
+	{
+		if (num[i] != num[strlen(num) - i - 1])
+		{
+			cout << "no";
+			return 0;
+		}
+	}
+	cout << "yes" << endl;
+}
