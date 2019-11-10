@@ -1,0 +1,33 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+bool firstwin(int a, int b)
+{
+    bool firstpick = true;
+    int maxnum = max(a,b);
+    int minnum = min(a,b);
+    while(true)
+    {
+        if(maxnum / minnum >= 2)return firstpick;
+        maxnum -= minnum;
+        if(maxnum < minnum)swap(maxnum, minnum);
+        if(maxnum == 0 || minnum == 0)break;
+        //cout << "MAX " << maxnum << " MIN " << minnum;
+        firstpick = (firstpick == true)?false:true;
+        
+    }
+    return firstpick;
+}
+
+int main()
+{
+    int a = 0;
+    int b = 0;
+    while (true)
+    {
+        cin >> a >> b;
+        if(a+b == 0)return 0;
+        if(firstwin(a,b))cout << "win" << endl;
+        else cout << "lose" << endl;
+    }
+}
