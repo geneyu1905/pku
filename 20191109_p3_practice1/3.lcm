@@ -1,0 +1,29 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+int hcf(int num1, int num2)
+{
+	int maxnum = max(num1, num2);
+	int minnum = min(num1, num2);
+	while (true)
+	{
+		int remain = maxnum % minnum;
+		if (remain == 0)
+		{
+			return minnum;
+		}
+		maxnum = remain;
+		swap(maxnum, minnum);
+	}
+}
+int main()
+{
+	char z = '0';
+	int num1 = 0;
+	int num2 = 0;
+	cin >> num1 >> z >> num2;
+	int factor = hcf(num1, num2);
+	cout << num1 * num2 / factor << endl;
+	
+}
