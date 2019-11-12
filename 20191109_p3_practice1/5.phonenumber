@@ -1,0 +1,58 @@
+#include <iostream>
+#include <cstring>
+#include <iomanip>
+using namespace std;
+int numset[10000000];
+int convert(char x)
+{
+	if (x == 'A' || x == 'B' || x == 'C')return 2;
+	else if (x == 'D' || x == 'E' || x == 'F')return 3;
+	else if (x == 'G' || x == 'H' || x == 'I')return 4;
+	else if (x == 'J' || x == 'K' || x == 'L')return 5;
+	else if (x == 'M' || x == 'N' || x == 'O')return 6;
+	else if (x == 'P' || x == 'R' || x == 'S')return 7;
+	else if (x == 'T' || x == 'U' || x == 'V')return 8;
+	else if (x == 'W' || x == 'X' || x == 'Y')return 9;
+	else if (x >= '0' && x <= '9')return x - '0';
+	else return 0;
+}
+
+int main()
+{
+	bool isOut = false;
+	int n = 0;
+	cin >> n;
+	char c = cin.get();
+	memset(numset, 0, sizeof(numset));
+	for (int i = 0; i < n; i++)
+	{
+		int num = 0;
+		for(int j = 1; j <= 7;)
+		{
+			char symbol;
+			cin.get(symbol);
+			if (symbol == '-' || symbol == '\n')continue;
+			int result = convert(symbol);
+			num = num * 10 + result;
+			j++;			
+		}
+		numset[num]++;
+	}
+
+	for (int i = 1; i < 10000000; i++)
+	{
+		if (numset[i] >= 2)
+		{
+			int j = i / 10000;
+			int k = i % 10000;
+			if (j < 100)cout << "0";
+			cout << j << "-";
+			if (k < 1000)cout << "0";
+			cout << k << " " << numset[i] << endl;
+			isOut = true;
+		}
+	}
+
+	if (isOut == false)cout << "No duplicates." << endl;
+
+}
