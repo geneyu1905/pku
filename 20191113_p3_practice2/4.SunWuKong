@@ -1,0 +1,47 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+int a[52][52];
+
+bool find(int i, int j)
+{
+	if (a[i][j] == 1)return false;
+	a[i][j] = 1;
+	if (a[i - 1][j] == 3 || a[i + 1][j] == 3 || a[i][j - 1] == 3 || a[i][j + 1] == 3) return true;
+	else if (a[i - 1][j] == 1 && a[i + 1][j] == 1 && a[i][j - 1] == 1 && a[i][j + 1] == 1) return false;
+	return (find(i - 1, j) || find(i + 1, j) || find(i, j + 1) || find(i, j - 1));
+}
+
+int main()
+{
+	int m, n;
+	cin >> m >> n;
+	int o, p;
+	for (int i = 0; i <= m + 1; i++)
+	{
+		for (int j = 0; j <= n + 1; j++)
+		{
+			a[i][j] = 1;
+		}
+	}
+	for (int i = 1; i <= m; i++)
+	{
+		for (int j = 1; j <= n; j++)
+		{
+			int num = 0;	
+			cin >> num;
+			a[i][j] = num;
+			if (num == 2)o = i, p = j;
+		}
+	}
+	/*for (int i = 0; i <= m; i++)
+	{
+		for (int j = 0; j <= n; j++)
+		{
+			cout << a[i][j] << (j == n ? "\n" : " ");
+		}
+	}*/
+
+	if (find(o, p) == true)cout << "Yes" << endl;
+	else cout << "No";
+}
