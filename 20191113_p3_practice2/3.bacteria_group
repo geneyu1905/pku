@@ -1,0 +1,53 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+int a[103][103];
+void setZero(int i, int j)
+{
+	a[i][j] = 0;
+	if (a[i + 1][j] == 1) setZero(i + 1, j);
+	if (a[i - 1][j] == 1) setZero(i - 1, j);
+	if (a[i][j + 1] == 1) setZero(i, j + 1);
+	if (a[i][j - 1] == 1) setZero(i, j - 1);
+}
+
+int main()
+{
+	int n, m;
+	int count = 0;
+	memset(a, 0, sizeof(a));
+	cin >> n >> m;
+	for (int i = 1; i < n + 1; i++)//***输入0和1***
+	{
+		for (int j = 1; j < m + 1; j++)
+		{
+			int num = 0;
+			cin >> num;
+			a[i][j] = num;
+		}
+	}
+	cout << endl;
+	
+	for (int i = 1; i < n + 1; i++)//***把多余的东西清0***
+	{
+		for (int j = 1; j < m + 1; j++)
+		{
+			if (a[i][j] == 1)
+			{
+				setZero(i, j);
+				a[i][j] = 1;
+			}
+		}
+	}
+
+	for (int i = 1; i < n + 1; i++)//***计算还剩下几个***
+	{
+		for (int j = 1; j < m + 1; j++)
+		{
+			//cout << a[i][j] << (j == m ? "\n" : " ");
+			if (a[i][j] == 1)count++;
+		}
+	}
+
+	cout << count;
+}
