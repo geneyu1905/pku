@@ -1,0 +1,17 @@
+#include <iostream>
+using namespace std;
+int findRoot(int m, int n)
+{
+	if (m == n)return m;
+	if (m / 2 > n / 2)return findRoot(m / 2, n);
+	else if (m / 2 < n / 2) return  findRoot(m, n / 2);
+	else return m / 2;
+}
+int main()
+{
+	int m = 0;
+	int n = 0;
+	cin >> m;
+	cin >> n;
+	cout << findRoot(m, n);
+}
