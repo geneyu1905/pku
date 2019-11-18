@@ -1,0 +1,25 @@
+#include<iostream>
+#include<stack>
+using namespace std;
+
+int main()
+{
+    char symbol;
+    char boy = '0';
+    char girl;
+    stack<int>stk;
+    int count = 0;
+    while(cin >> symbol)
+    {
+        if(boy == '0')boy = symbol;
+        if(symbol != boy)girl = symbol;
+        if(symbol==boy)stk.push(count);
+        else
+        {
+            cout << stk.top() << " " << count << endl;
+            stk.pop();
+        }
+        count++;
+    }
+    return 0;
+}
