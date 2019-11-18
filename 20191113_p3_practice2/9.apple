@@ -1,0 +1,23 @@
+#include <iostream>
+using namespace std;
+int numOfWays(int m, int n)
+{
+	if (m <= 1 || n <= 1)return 1;
+	if (n > m)return numOfWays(m, m);
+	else
+	{
+		return numOfWays(m, n - 1) + numOfWays(m - n, n);
+	}
+}
+int main()
+{
+	int n = 0;
+	int plate = 0;
+	int apple = 0;
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		cin >> apple >> plate;
+		cout << numOfWays(apple, plate) << endl;
+	}
+}
