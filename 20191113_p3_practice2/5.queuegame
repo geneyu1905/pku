@@ -1,0 +1,61 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+struct order{
+    int boy;
+    int girl;
+};
+//***排序***
+bool compare (order a, order b)
+{
+    return a.girl < b.girl;
+}
+
+int main()
+{
+    int n = 0,m = 0;
+    char char1 = '0';
+    char char2;
+    char symbol[101] = {"0"};
+    //***输入数据并找出男女字符***
+    while (cin >> symbol[n])
+    {
+        if (char1 == '0')char1 = symbol[n];
+        if (symbol[n] != char1)char2 = symbol[n];
+        n++;
+    }
+
+    order student[51];
+    //***不断的执行，直到所有人都参与了反应***
+    bool check = true;
+    while(check)
+    {
+        check = false; 
+        for (int i = 0; i < n; i++)
+        {
+            if (symbol[i] != char1)continue;
+            for (int j = i + 1; j < n; j++)
+            {
+                if (symbol[j] == char1)break; //如果还是男的就跳过
+                if (symbol[j] != char2)continue; //如果已经参与了反应，就跳过
+                symbol[i] = '0'; //剔除已参与反应的人
+                symbol[j] = '0';
+                student[m].boy = i; //记录男女的位置
+                student[m].girl = j;
+                m++;
+                break;
+            }
+        }
+        
+        for (int i = 0; i < n; i++) //如果所有人都参与了反应，就会return false
+        {
+            if(symbol[i] == char1)check = true;
+        }
+    }
+
+    sort((student)+0,(student)+m-1,compare);
+    for(int i = 0; i < m; i++) //根据女生的位置来排序
+    {
+        cout << student[i].boy << " " << student[i].girl << endl;
+    }
+}
