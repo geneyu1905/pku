@@ -1,0 +1,26 @@
+#include <iostream>
+using namespace std;
+char a[1000] = { " " };
+double findDigit()
+{
+	char symbol[10];
+	cin >> symbol;
+	switch (symbol[0])
+	{
+		case '+':
+			return findDigit() + findDigit();
+		case '-':
+			return findDigit() - findDigit();
+		case '*':
+			return findDigit() * findDigit();
+		case '/':
+			return findDigit() / findDigit();
+			break;
+		default:
+			return atof(symbol);
+	}
+}
+int main()
+{	
+	printf("%f\n", findDigit());
+}
