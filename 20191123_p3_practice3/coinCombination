@@ -1,0 +1,24 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+int count1 = 0;
+void coin(int n,int a, int b, int c)
+{
+	int result = n - a - b * 2 - c * 5;
+	if (result == 0)
+	{
+		count1++;
+		cout << setfill('0') << setw(3) << count1 << setfill(' ') << setw(12) << a << setfill(' ') << setw(12) << b << setfill(' ') << setw(12) << c << endl;
+	}
+	if (a > n)return coin(n, 0, b + 1, c);
+	if (b * 2 > n)return coin(n, 0, 0, c + 1);
+	if (c * 5 > n)return;
+	coin(n, a + 1, b, c);
+	
+}
+int main()
+{
+	int n = 0;
+	cin >> n;
+	coin(n, 0, 0, 0);
+}
