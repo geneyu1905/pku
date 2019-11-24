@@ -1,0 +1,32 @@
+#include <iostream>
+using namespace std;
+int count1 = 0;
+void allFactor(int fac,int num)
+{
+	if (num == 1)
+	{
+		count1++;
+		return;
+	}
+	for (int i = fac; i >= 2; i--)
+	{
+		if (num % i == 0)
+		{
+			allFactor(i,num/i);
+		}
+	}
+}
+
+int main()
+{
+	int n = 0;
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		count1 = 0;
+		int num = 0;
+		cin >> num;
+		allFactor(num,num);
+		cout << count1 << endl;
+	}
+}
