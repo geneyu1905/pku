@@ -1,0 +1,38 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+char a[101][101] = { "#" };
+bool walk(int i, int j)
+{
+	if (a[i][j] == '@')return true;
+	else if (a[i][j] == '#')return false;
+	a[i][j] = '#';
+	return(walk(i + 1, j) || walk(i - 1, j) || walk(i, j + 1) || walk(i, j - 1));
+}
+
+int main()
+{
+	int total = 0;
+	cin >> total;				 
+	for (int z = 0; z < total; z++)
+	{
+		bool impossible = false;
+		memset(a, '#', sizeof(a));
+		int n = 0;
+		cin >> n;
+		for (int i = 1; i <= n; i++)
+		{
+			for (int j = 1; j <= n; j++)
+			{
+				cin >> a[i][j];
+			}
+		}
+		int i1, j1, i2, j2;
+		cin >> i1 >> j1 >> i2 >> j2;
+		if (a[i1 + 1][j1 + 1] == '#' || a[i2 + 1][j2 + 1] == '#')impossible = true;
+		a[i2 + 1][j2 + 1] = '@';
+		if (walk(i1 + 1, j1 + 1) && impossible == false) cout << "YES" << endl;
+		else cout << "NO" << endl;
+
+	}
+}
