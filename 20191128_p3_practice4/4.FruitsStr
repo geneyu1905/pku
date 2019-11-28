@@ -1,0 +1,30 @@
+#include <iostream>
+#include <string>
+using namespace std;
+string fruits[7] = { "apples","bananas","peaches","cherries","pears","oranges","strawberries" };
+void replace(string s, int idx)
+{
+	
+}
+int main()
+{
+	string s;
+	while (getline(cin, s))
+	{
+		bool isFruit = false;
+		int idx = 0;
+		for (int i = 0; i < 7; i++)
+		{
+			if (s.find(fruits[i]) != -1)
+			{
+				isFruit = true;
+				idx = s.find(fruits[i]);
+				s.replace(idx, fruits[i].length(), "Brussels sprouts");
+			}
+
+		}
+		if (isFruit)cout << s << endl;
+		else cout << "You must not enjoy fruit." << endl;
+	}
+	
+}
