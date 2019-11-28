@@ -1,0 +1,45 @@
+#include <iostream>
+#include <string>
+using namespace std;
+char a[202][202] = { "0" };
+void clear(int i, int j)
+{
+	a[i][j] = '-';
+	if (a[i + 1][j] == '#')clear(i + 1, j);
+	if (a[i - 1][j] == '#')clear(i - 1, j);
+	if (a[i][j + 1] == '#')clear(i, j + 1);
+	if (a[i][j - 1] == '#')clear(i, j - 1);
+	if (a[i + 1][j + 1] == '#')clear(i + 1, j + 1);
+	if (a[i - 1][j - 1] == '#')clear(i - 1, j - 1);
+	if (a[i - 1][j + 1] == '#')clear(i - 1, j + 1);
+	if (a[i + 1][j - 1] == '#')clear(i + 1, j - 1);
+
+}
+
+int main()
+{
+	int count1 = 0;
+	memset(a, '-', sizeof(a));
+	int n, m;
+	cin >> n >> m;
+	for (int i = 1; i <= n; i++)
+	{
+		for (int j = 1; j <= m; j++)
+		{
+			cin >> a[i][j];
+		}
+	}
+	for (int i = 1; i <= n; i++)
+	{
+		for (int j = 1; j <= m; j++)
+		{
+			if (a[i][j] == '#')
+			{
+				clear(i, j);
+				a[i][j] = '#';
+				count1++;
+			}
+		}
+	}
+	cout << count1;
+}
