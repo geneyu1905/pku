@@ -1,0 +1,21 @@
+#include <iostream>
+using namespace std;
+bool isSubset(int ele, int num)
+{
+	if (ele > num)return false;
+	else if (ele == num)return true;
+	else
+	{
+		return (isSubset(2 * ele + 1, num) || isSubset(3 * ele + 1, num));
+	}
+
+}
+int main()
+{
+	int k = 0;
+	int x = 0;
+	char z = '0';
+	cin >> k >> z >> x;
+	if (isSubset(k, x))cout << "YES" << endl;
+	else cout << "NO" << endl;
+}
