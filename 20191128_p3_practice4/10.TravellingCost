@@ -1,0 +1,45 @@
+#include <iostream>
+#include <string>
+int n = 0;
+int price[20][20] = { 0 };
+int route[20] = { 0 };
+int min1 = 100000;
+using namespace std;
+void check(int times, int cost)
+{
+	if (cost > min1)return;
+	if (times == n)
+	{
+		cost += price[0][route[n - 1]];
+		if (min1 > cost)
+		{
+			min1 = cost;
+		}
+		return;
+	}
+
+	for (int i = times; i < n; i++)
+	{
+		swap(route[times], route[i]);
+		check(times + 1, cost + price[route[times]][route[times - 1]]);
+		swap(route[times], route[i]);
+	}
+}
+
+int main()
+{
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			cin >> price[i][j];
+		}
+	}
+	for (int i = 0; i < n; i++)
+	{
+		route[i] = i;
+	}
+	check(1, 0);
+	cout << min1 << endl;
+}
