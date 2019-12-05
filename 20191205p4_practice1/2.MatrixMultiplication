@@ -1,0 +1,43 @@
+#include <iostream>
+using namespace std;
+int main()
+{
+	int total = 0;
+	cin >> total;
+	for (int i = 0; i < total; i++)
+	{
+		int s, m, n;
+		int a[100][100] = { 0 };
+		int b[100][100] = { 0 };
+		cin >> s >> m >> n;
+		for (int j = 0; j < s; j++) //Input MatrixA
+		{
+			for (int k = 0; k < m; k++)
+			{
+				cin >> a[j][k];
+			}
+		}
+
+		for (int j = 0; j < m; j++) //Input MatrixB
+		{
+			for (int k = 0; k < n; k++)
+			{
+				cin >> b[j][k];
+			}
+		}
+
+		for (int j = 0; j < s; j++) //Output multiplicaation of Matrix A and B
+		{
+			for (int k = 0; k < n; k++)
+			{
+				int sum = 0;
+				for (int z = 0; z < m; z++)
+				{
+					sum += (*(a[j] + z)) * (*(b[z] + k));
+				}
+				cout << sum << (k == n - 1?"":" ");
+			}
+			cout << endl;
+		}
+	}
+}
