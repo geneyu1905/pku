@@ -1,0 +1,40 @@
+#include <iostream>
+#include <iomanip>
+#include <algorithm>
+using namespace std;
+bool isDgt(float a)
+{
+	float b = a - int(a);
+	if (b == 0)return true;
+	else return false;
+}
+void rankF(float* a[])
+{
+	float* temp = NULL;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 2; j++)
+		{
+			if (*a[j] > * a[j + 1])
+			{
+				temp = a[j];
+				a[j] = a[j + 1];
+				a[j + 1] = temp;
+			}
+		}
+	}	
+}
+int main()
+{
+	float num[3] = { 0 };
+	char z = 0;
+	cin >> num[0] >> z >> num[1] >> z >> num[2];
+	float* ptr[3] = { &num[0], &num[1], &num[2] };
+	rankF(ptr);
+	for (int i = 0; i < 3; i++)
+	{
+		if (isDgt(*ptr[i]))cout << fixed << setprecision(0) << *ptr[i];
+		else cout << fixed << setprecision(2) << *ptr[i];
+		cout <<(i == 2?"":",");
+	}
+}
