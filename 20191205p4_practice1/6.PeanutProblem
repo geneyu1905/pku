@@ -1,0 +1,91 @@
+#include <iostream>
+#include <string>
+using namespace std;
+int a[21][21] = { 0 };
+int biggest(int row, int col)
+{
+	int max = 0;
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			if (a[i][j] > max)max = a[i][j];
+		}
+	}
+	return max;
+}
+int main()
+{
+	int total = 0;
+	cin >> total;
+	
+	for (int z = 0; z < total; z++)
+	{
+		memset(a, 0, sizeof(a));
+		int sum = 0;
+		int m = 0; int n = 0; int time = 0;
+		cin >> m >> n >> time;
+		for (int j = 0; j < m; j++) //Input Matrix
+		{
+			for (int k = 0; k < n; k++)
+			{
+				cin >> a[j][k];
+			}
+		}
+		bool isFirst = true;
+		int curJ1 = 0;
+		int curK1 = 0;
+		int curJ2 = 0;
+		int curK2 = 0;
+		for (int i = 1; i < time;)
+		{
+			int max1 = biggest(m,n);
+			bool isBreak = false;
+			if (isFirst)
+			{
+				for (int j = 0; j < m; j++)
+				{
+					for (int k = 0; k < n; k++)
+					{
+						if (a[j][k] == max1)
+						{
+							curJ1 = j;
+							curK1 = k;
+							a[j][k] = 0;
+							isFirst = false;
+							isBreak = true;
+							break;
+						}
+					}
+					if (isBreak)break;
+				}
+				i += curJ1 + 2;
+			}
+			else
+			{
+				for (int j = 0; j < m; j++)
+				{
+					for (int k = 0; k < n; k++)
+					{
+						if (a[j][k] == max1)
+						{
+							curJ2 = j;
+							curK2 = k;
+							a[j][k] = 0;
+							isBreak = true;
+							break;
+						}
+					}
+					if (isBreak)break;
+				}
+				i += abs(curJ2 - curJ1) + abs(curK2 - curK1) + 1;
+			}
+			curJ1 = curJ2;
+			curK1 = curK2;
+			//cout << i << " " << max1 << endl;
+			if (i > time - curJ1)break;
+			sum += max1;
+		}
+		cout << sum << endl;
+	}
+}
