@@ -1,0 +1,35 @@
+#include <iostream>
+#include <string>
+using namespace std;
+int main()
+{
+	string checklist[4] = { " if "," switch "," while "," for " };
+	int checkcount[2][4] = { 0 };
+	string str1;
+	int total = 0;
+	for (int z = 0; z < 2; z++)
+	{
+		cin >> total;
+		getchar();
+		for (int i = 0; i < total; i++)
+		{
+			getline(cin, str1);
+			for (int j = 0; j < 4; j++)
+			{
+				int n = 0;
+				while (n < str1.length())
+				{
+					n = str1.find(checklist[j], n + 1);
+					if (n == -1)break;
+					checkcount[z][j]++;
+				}
+			}
+		}
+	}
+	bool isSame = true;
+	for (int z = 0; z < 4; z += 2)
+	{
+		if ((checkcount[0][z] + checkcount[0][z + 1]) != (checkcount[1][z] + checkcount[1][z + 1]))isSame = false;
+	}
+	cout << (isSame ? "Yes" : "No") << endl;
+}
