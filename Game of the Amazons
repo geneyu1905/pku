@@ -1,0 +1,147 @@
+// 亚马逊棋（Amazons）简单交互样例程序
+// 随机策略（由zhouhy修改）
+// 作者：dgf123/syys
+// 游戏信息：http://www.botzone.org/games#Amazons
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+
+
+#define GRIDSIZE 8
+#define OBSTACLE 2
+#define judge_black 0
+#define judge_white 1
+#define grid_black 1
+#define grid_white -1
+
+using namespace std;
+
+int currBotColor; // 我所执子颜色（1为黑，-1为白，棋盘状态亦同）
+int gridInfo[GRIDSIZE][GRIDSIZE] = { 0 }; // 先x后y，记录棋盘状态
+int dx[] = { -1,-1,-1,0,0,1,1,1 };
+int dy[] = { -1,0,1,-1,1,-1,0,1 };
+
+// 判断是否在地图内
+inline bool inMap(int x, int y)
+{
+	if (x < 0 || x >= GRIDSIZE || y < 0 || y >= GRIDSIZE)
+		return false;
+	return true;
+}
+bool isWay(int x0, int y0, int x1, int y1)
+{
+	return true;
+}
+
+bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color)
+{
+	if ((!inMap(x0, y0)) || (!inMap(x1, y1)) || (!inMap(x2, y2))) //任何一点不在棋盘内的话，就返回false
+		return false;
+	if (gridInfo[x0][y0] != color || gridInfo[x1][y1] != 0) //自己的棋子不在选择的起点上或者要去的地方已经被占领了，就返回false
+		return false;
+	if ((gridInfo[x2][y2] != 0) && !(x2 == x0 && y2 == y0)) //选择的障碍位置已经被占领，除非障碍位置是自己的起始位置
+		return false;
+	if (!(isWay(x0, y0, x1, y1) && isWay(x1, y1, x2, y2))) //如果是非法步法,返回false
+		return false;
+	return true;
+}
+// 在坐标处落子，检查是否合法或模拟落子
+bool ProcStep(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool check_only)
+{
+	if (!check_only) //移动棋子
+	{
+		gridInfo[x0][y0] = 0; 
+		gridInfo[x1][y1] = color;
+		gridInfo[x2][y2] = OBSTACLE;
+	}
+	return true;
+}
+
+
+// 绘制棋盘 
+void PrintTable()
+{
+	cout << endl << "   ";
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		cout << "   " << i << "  ";
+	}
+	cout << endl;
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		cout << "  |";
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			cout << "|-----";
+		}
+		cout << "||" << endl << " " << i << "|";
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			if (gridInfo[i][j] == grid_black)
+			{
+				cout << "|  B  ";
+			}
+			else if (gridInfo[i][j] == grid_white)
+			{
+				cout << "|  W  ";
+			}
+			else if (gridInfo[i][j] == OBSTACLE)
+			{
+				cout << "|  #  ";
+			}
+			else
+			{
+				cout << "|     ";
+			}
+		}
+		cout << "||" << endl;
+	}
+	cout << "  |";
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		cout << "|-----";
+	}
+	cout << "||\n" << endl;
+}
+
+int main()
+{
+	int x0, y0, x1, y1, x2, y2;
+
+	// 初始化棋盘
+	gridInfo[0][(GRIDSIZE - 1) / 3] = gridInfo[(GRIDSIZE - 1) / 3][0]
+		= gridInfo[GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)][0]
+		= gridInfo[GRIDSIZE - 1][(GRIDSIZE - 1) / 3] = grid_black;
+	gridInfo[0][GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)] = gridInfo[(GRIDSIZE - 1) / 3][GRIDSIZE - 1]
+		= gridInfo[GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)][GRIDSIZE - 1]
+		= gridInfo[GRIDSIZE - 1][GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)] = grid_white;
+
+
+	int turnID;
+	cout << "请输入局数:";
+	cin >> turnID;
+	system("cls");
+	PrintTable();
+
+	currBotColor = grid_white; // 先假设自己是黑方
+	for (int i = 1; i <= turnID; i++)
+	{
+		currBotColor = -1 * currBotColor; // 每局换人
+		cout << (currBotColor == grid_white ? "当前为白方走步，请输入：" : "当前为黑方走步,请输入: ");
+		cin >> x0 >> y0 >> x1 >> y1 >> x2 >> y2;
+		if (isValid(x0, y0, x1, y1, x2, y2, currBotColor))
+		{
+			ProcStep(x0, y0, x1, y1, x2, y2, currBotColor, false);
+		}
+
+		else
+		{
+			cout << "非法走步，请重试!\n" << endl;
+			i--;
+		}
+		system("cls");
+		PrintTable();
+	}
+	return 0;
+}
