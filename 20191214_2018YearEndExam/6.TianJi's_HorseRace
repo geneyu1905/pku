@@ -1,0 +1,55 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+bool cmp(int a, int b)
+{
+	return a > b;
+}
+int main()
+{
+	int total;
+	while (cin >> total)
+	{
+		if (total == 0)break;
+		int king[1001] = { 0 };
+		int me[1001] = { 0 };
+		int lastKing = total - 1;
+		int lastMe = total - 1;
+		int firstKing = 0;
+		int firstMe = 0;
+		int victory = 0;
+		for (int i = 0; i < total; i++)
+		{
+			cin >> me[i];
+		}
+		for (int i = 0; i < total; i++)
+		{
+			cin >> king[i];
+		}
+		sort(me, me + total, cmp);
+		sort(king, king + total, cmp);
+
+		for (int i = 0; i < total; i++)
+		{
+			if (me[lastMe] > king[lastKing])
+			{
+				victory++;
+				lastMe--;
+				lastKing--;
+			}
+			else if (me[firstMe] > king[firstKing])
+			{
+				victory++;
+				firstMe++;
+				firstKing++;
+			}
+			else 
+			{
+				if (me[lastMe] < king[firstKing])victory--;
+				lastMe--;
+				firstKing++;
+			}
+		}
+		cout << victory * 200 << endl;
+	}
+}
