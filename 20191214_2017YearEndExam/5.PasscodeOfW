@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+using namespace std;
+bool isFirst(char a)
+{
+	if (a >= 'a' && a <= 'i')return true;
+	return false;
+}
+bool isSecond(char a)
+{
+	if (a >= 'j' && a <= 'r')return true;
+	return false;
+}
+bool isThird(char a)
+{
+	if ((a >= 's' && a <= 'z') || a == '_')return true;
+	return false;
+}
+int main()
+{
+	int k1, k2, k3;
+	while (cin >> k1 >> k2 >> k3)
+	{
+		if (k1 == 0 && k2 == 0 && k3 == 0)return 0;
+		char a[100] = { "0" };
+		cin >> a;
+		char* ptr[3][50] = { NULL };
+		int i = 0;
+		int i1 = 0, i2 = 0, i3 = 0;
+		while (a[i] != '\0')
+		{
+			if (isFirst(a[i]))ptr[0][i1++] = &a[i];
+			if (isSecond(a[i]))ptr[1][i2++] = &a[i];
+			if (isThird(a[i]))ptr[2][i3++] = &a[i];
+			i++;
+		}
+		
+		char temp;
+		if (i1 != 0)
+		{
+			for (int j = 0; j < k1; j++)
+			{
+				temp = *ptr[0][i1 - 1];
+				for (int k = i1 - 1; k > 0; k--)
+				{
+					*ptr[0][k] = *ptr[0][k - 1];
+				}
+				*ptr[0][0] = temp;
+			}
+			
+		}
+
+		if (i2 != 0)
+		{
+			for (int j = 0; j < k2; j++)
+			{
+				temp = *ptr[1][i2 - 1];
+				for (int k = i2 - 1; k > 0; k--)
+				{
+					*ptr[1][k] = *ptr[1][k - 1];
+				}
+				*ptr[1][0] = temp;
+			}
+
+		}
+
+		if (i3 != 0)
+		{
+			for (int j = 0; j < k3; j++)
+			{
+				temp = *ptr[2][i3 - 1];
+				for (int k = i3 - 1; k > 0; k--)
+				{
+					*ptr[2][k] = *ptr[2][k - 1];
+				}
+				*ptr[2][0] = temp;
+			}
+		}
+
+		int k = 0;
+		while (a[k] != '\0')
+		{
+			cout << a[k++];
+		}
+		cout << endl;
+	}
+}
