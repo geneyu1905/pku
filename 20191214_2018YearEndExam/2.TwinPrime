@@ -1,0 +1,28 @@
+#include <iostream>
+#include <string>
+using namespace std;
+int main()
+{
+	bool isPrime[10001];
+	memset(isPrime, true, sizeof(isPrime));
+	int n = 0;
+	cin >> n;
+	for (int i = 2; i <= n; i++)
+	{
+		if (isPrime[i] == false)continue;
+		for (int j = i + i; j <= n; j += i)
+		{
+			isPrime[j] = false;
+		}
+	}
+
+	int max1 = 0;
+	for (int i = 5; i <= n; i++)
+	{
+		if (isPrime[i] && isPrime[i - 2])
+		{
+			if (i >= max1) max1 = i;
+		}
+	}
+	cout << max1 - 2 << " " << max1;
+}
