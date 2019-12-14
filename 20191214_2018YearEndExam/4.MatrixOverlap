@@ -1,0 +1,45 @@
+#include <iostream>
+#include <string>
+using namespace std;
+int main()
+{
+	bool board[501][501];
+	memset(board, false, sizeof(board));
+	int n;
+	cin >> n;
+	for (int z = 0; z < n; z++)
+	{
+		int det;
+		int x1, x2, y1, y2;
+		bool isNotOverlap = false;
+		cin >> det >> x1 >> y1 >> x2 >> y2;
+		if (det == 0)
+		{
+			for (int i = y1; i < y2; i++)
+			{
+				for (int j = x1; j < x2; j++)
+				{
+					board[i][j] = true;
+				}
+			}
+		}
+		else
+		{
+			for (int i = y1; i < y2; i++)
+			{
+				if (isNotOverlap)break;
+				for (int j = x1; j < x2; j++)
+				{
+					if (isNotOverlap)break;
+					if (board[i][j] == false)
+					{
+						isNotOverlap = true;
+						cout << "No" << endl;
+					}
+				}
+			}
+			if (isNotOverlap == false)cout << "Yes" << endl;
+		}
+	}
+
+}
