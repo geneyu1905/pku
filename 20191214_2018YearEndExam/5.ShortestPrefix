@@ -1,0 +1,41 @@
+#include <iostream>
+#include <string>;
+using namespace std;
+int main()
+{
+	string str[1001] = { "" };
+	string pfx[1001] = { "" };
+	int n = 0;
+	while (cin >> str[n++]);
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < str[i].length(); j++)
+		{
+			bool isOcc = false;
+			string sub = str[i].substr(0,j+1);
+			if (sub.length() == str[i].length())
+			{
+				pfx[i] = sub;
+				break;
+			}
+			for (int k = 0; k < n; k++)
+			{
+				if (k == i)continue;
+				if (str[k].find(sub) == 0) 
+				{
+					isOcc = true;
+					break;
+				}
+			}
+			if (isOcc == false)
+			{
+				pfx[i] = sub;
+				break;
+			}
+		}
+	}
+	for (int i = 0; i < n; i++)
+	{
+		cout << str[i] << " " << pfx[i] << endl;
+	}
+}
