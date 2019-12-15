@@ -19,6 +19,7 @@ using namespace std;
 
 int currBotColor; // 我所执子颜色（1为黑，-1为白，棋盘状态亦同）
 int gridInfo[GRIDSIZE][GRIDSIZE] = { 0 }; // 先x后y，记录棋盘状态
+int temp[GRIDSIZE][GRIDSIZE] = { 0 };
 int dx[] = { -1,-1,-1,0,0,1,1,1 };
 int dy[] = { -1,0,1,-1,1,-1,0,1 };
 
@@ -29,9 +30,131 @@ inline bool inMap(int x, int y)
 		return false;
 	return true;
 }
-bool isWay(int x0, int y0, int x1, int y1)
+bool isWay(int x0, int y0, int x1, int y1,int x2, int y2, int color)
 {
+	if (color == OBSTACLE && x1 == x2 && y1 == y2)return true;
+	if (x0 == x1 && y0 == y1)return false; //如果重叠
+	if (gridInfo[x1][y1] != 0)return false; //如果已经被占领
+	if (x1 != x0 && y1 == y0)
+	{
+		if (x1 < x0)
+		{
+			for (int a = x0 - 1; a >= x1; a--)//上面--同一列不同行找可以走到哪里
+			{
+				if (gridInfo[a][y0] != 0)return false;
+			}
+		}
+		if (x1 > x0)
+		{
+			for (int a = x0 + 1; a <= x1; a++)//下面--同一列不同行找可以走到哪里
+			{
+				if (gridInfo[a][y0] != 0)return false;
+			}
+		}
+	}
+
+	if (x1 == x0 && y1 != y0)
+	{
+		if (y1 < y0)
+		{
+			for (int a = y0 - 1; a >= y1; a--)//左边--同一行不同列找可以走到哪里
+			{
+				if (gridInfo[x0][a] != 0)return false;
+			}
+		}
+		if (y1 > y0)
+		{
+			for (int a = y0 + 1; a <= y1; a++)//右边--同一行不同列找可以走到哪里
+			{
+				if (gridInfo[x0][a] != 0)return false;
+			}
+		}
+	}
+
+	if (x1 > x0 && y1 > y0)
+	{
+
+		int right_bottom_temp = x0 + y0;//判断右下对角线 (加2）
+		for (int a = x0 + 1; a <= x1; a++)
+		{
+			for (int b = y0 + 1; b <= y1; b++)
+			{
+				if (a + b == 2 + right_bottom_temp)
+				{
+					right_bottom_temp += 2;
+					if (gridInfo[a][b] != 0)return false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	if (x1 < x0 && y1 > y0)
+	{
+		int right_top_temp = x0 + y0; //判断右上角（同数）
+		{
+			for (int a = x0 - 1; a >= x1; a--)
+			{
+				for (int b = y0 + 1; b <= y1; b++)
+				{
+					if (a + b == right_top_temp)
+					{
+						if (gridInfo[a][b] != 0)return false;
+					}
+					else
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+
+	if (x1 < x0 && y1 < y0)
+	{
+		int left_top_temp = x0 + y0;//判断左上对角线 (加2）
+		for (int a = x0 - 1; a >= x1; a--)
+		{
+			for (int b = y0 - 1; b >= y1; b--)
+			{
+				if (a + b == 2 + left_top_temp)
+				{
+					left_top_temp += 2;
+
+					if (gridInfo[a][b] != 0)return false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	if (x1 > x0&& y1 < y0)
+	{
+		int left_bottom_temp = x0 + y0;//判断左下对角线（同数）
+		for (int a = x0 + 1; a <= x1; a++)
+		{
+			for (int b = y0 - 1; b >= y0; b--)
+			{
+				if (a + b == left_bottom_temp)
+				{
+					if (gridInfo[a][b] != 0)return false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+	}
+
 	return true;
+
 }
 
 bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color)
@@ -42,7 +165,7 @@ bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color)
 		return false;
 	if ((gridInfo[x2][y2] != 0) && !(x2 == x0 && y2 == y0)) //选择的障碍位置已经被占领，除非障碍位置是自己的起始位置
 		return false;
-	if (!(isWay(x0, y0, x1, y1) && isWay(x1, y1, x2, y2))) //如果是非法步法,返回false
+	if (!(isWay(x0, y0, x1, y1,x2,y2,color) && isWay(x1, y1, x2, y2,x0,y0, OBSTACLE))) //如果是非法步法,返回false
 		return false;
 	return true;
 }
@@ -51,7 +174,7 @@ bool ProcStep(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool ch
 {
 	if (!check_only) //移动棋子
 	{
-		gridInfo[x0][y0] = 0; 
+		gridInfo[x0][y0] = 0;
 		gridInfo[x1][y1] = color;
 		gridInfo[x2][y2] = OBSTACLE;
 	}
@@ -127,7 +250,8 @@ int main()
 	currBotColor = grid_white; // 先假设自己是黑方
 	for (int i = 1; i <= turnID; i++)
 	{
-		currBotColor = -1 * currBotColor; // 每局换人
+		if (i % 2 == 0)currBotColor = grid_white; // 每局换人
+		else currBotColor = grid_black;
 		cout << (currBotColor == grid_white ? "当前为白方走步，请输入：" : "当前为黑方走步,请输入: ");
 		cin >> x0 >> y0 >> x1 >> y1 >> x2 >> y2;
 		if (isValid(x0, y0, x1, y1, x2, y2, currBotColor))
