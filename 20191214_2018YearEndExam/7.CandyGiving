@@ -1,0 +1,46 @@
+#include <iostream>
+using namespace std;
+int StudentFavour[21][21] = { 0 };
+int usedStudent[21] = { 0 };
+int usedCandy[21] = { 0 };
+int num_of_student;
+int num_of_candy;
+int maxN = -1;
+void MaxNumber(int candy, int cnt)
+{
+	if (cnt > num_of_student)return;
+	if (candy > num_of_candy) return;
+	
+	for (int i = candy; i <= num_of_candy; i++)
+	{
+		if (usedCandy[i] == 1)continue;
+		for (int j = 1; j <= num_of_student; j++)
+		{
+			if (usedStudent[j] > 0 || StudentFavour[j][i] == 0)continue;
+			if (cnt + 1 > maxN)maxN = cnt + 1;
+			usedStudent[j] = i;
+			usedCandy[i] = 1;
+			MaxNumber(i + 1, cnt + 1);
+			usedStudent[j] = 0;
+			usedCandy[i] = 0;
+		}
+	}
+}
+
+int main()
+{
+	cin >> num_of_student >> num_of_candy;
+	for (int i = 1; i <= num_of_student; i++)
+	{
+		int num = 0;
+		cin >> num;
+		for (int j = 0; j < num; j++)
+		{
+			int temp = 0;
+			cin >> temp;
+			StudentFavour[i][temp] = 1;
+		}
+	}
+	MaxNumber(1, 0);
+	cout << maxN;
+}
