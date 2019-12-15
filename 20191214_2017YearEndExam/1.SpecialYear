@@ -1,0 +1,32 @@
+#include <iostream>
+using namespace std;
+bool SpecialYear(int b)
+{
+	int b1 = b / 1000;
+	int b2 = b / 100 - b1 * 10;
+	int b3 = b / 10 - b1 * 100 - b2 * 10;
+	int b4 = b - b1 * 1000 - b2 * 100 - b3 * 10;
+
+	if (b1 != b2 && b1 != b3 && b1 != b4 && b2 != b3 && b2 != b4 && b3 != b4)
+	{
+		cout << b << endl;
+		return true;
+	}
+	return false;
+}
+int main()
+{
+	int n = 0;
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		int yearS;
+		cin >> yearS;
+		int j = yearS + 1;
+		while (true)
+		{
+			if (SpecialYear(j))break;
+			j++;
+		}
+	}
+}
