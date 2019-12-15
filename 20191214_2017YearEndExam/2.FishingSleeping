@@ -1,0 +1,71 @@
+	#include <iostream>
+	using namespace std;
+	int monthL[12] = { 31,29,31,30,31,30,31,31,30,31,30,31 };
+	int month[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+	bool isLeap(int a)
+	{
+		if ((a % 100 != 0 && a % 4 == 0) || (a % 400 == 0))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	int DayGap(int y, int m, int d,int y0, int m0, int d0)
+	{
+		int sum = 0;
+		for (int i = 0; i < y - y0; i++)
+		{
+			if (isLeap(y0 + i))
+			{
+				sum += 366;
+			}
+			else
+			{
+				sum += 365;
+			}
+		}
+		for (int i = 0; i < m - 1; i++)
+		{
+			if (isLeap(y))
+			{
+				sum += monthL[i];
+			}
+			else
+			{
+				sum += month[i];
+			}
+		}
+		sum += d;
+		for (int i = 0; i < m0 - 1; i++)
+		{
+			if (isLeap(y))
+			{
+				sum -= monthL[i];
+			}
+			else
+			{
+				sum -= month[i];
+			}
+		}
+		sum += d0;
+		sum-= 2;
+		return sum;
+	}
+
+	int main()
+	{
+		int y0 = 1990, m0 = 1, d0 = 1;
+		int y, m, d;
+		cin >> y >> m >> d;
+		int gap = DayGap(y, m, d, y0, m0, d0);
+		//cout << gap << endl;
+		if (gap % 5 == 3 || gap % 5 == 4)
+		{
+			cout << "sleeping" << endl;
+		}
+		else
+		{
+			cout << "fishing" << endl;
+		}
+	}
