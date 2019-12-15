@@ -1,0 +1,49 @@
+#include <iostream>
+int a[1001][1001] = { 0 };
+using namespace std;
+int main()
+{
+	int n;
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			cin >> a[i][j];
+		}
+	}
+	bool flag = false;
+	for (int i = 0; i < n; i++)
+	{
+		flag = false;
+		for (int j = 0; j < n; j++)
+		{
+			if (flag) break;
+			if (a[i][j] == 0)flag = true;
+			a[i][j] = 0;
+			
+		}
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		flag = false;
+		for (int j = n - 1; j >= 0; j--)
+		{
+			if (flag) break;
+			if (a[i][j] == 0)flag = true;
+			a[i][j] = 0;
+
+		}
+	}
+	int cnt = 0;
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (a[i][j] == 255)cnt++;
+		}
+	}
+
+	cout << cnt << endl;
+}
