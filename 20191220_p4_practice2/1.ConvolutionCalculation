@@ -1,0 +1,36 @@
+#include <iostream>
+using namespace std;
+int at(int border, int idx, int a[])
+{
+	if (idx >= border || idx < 0)return 0;
+	else return a[idx];
+}
+int main()
+{
+	int n;
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		int a, b;
+		cin >> a >> b;
+		int sig1[30], sig2[30];
+		for (int j = 0; j < a; j++)
+		{
+			cin >> sig1[j];
+		}
+		for (int j = 0; j < b; j++)
+		{
+			cin >> sig2[j];
+		}
+		for (int k = 0; k <= a + b - 2; k++)
+		{
+			int sum = 0;
+			for (int j = -99; j <= 99; j++)
+			{
+				sum += at(a, j, sig1) * at(b, k - j, sig2);
+			}
+			cout << sum << (k == a + b - 2 ? "" : " ");
+		}
+		cout << endl;
+	}
+}
