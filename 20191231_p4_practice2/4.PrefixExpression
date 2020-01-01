@@ -1,0 +1,52 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <iomanip>
+using namespace std;
+string str[100];
+int idx = 0;
+
+double string2num(string a)
+{
+	double num;
+	stringstream b;
+	b << a;
+	b >> num;
+	return num;
+}
+
+bool isDigit(char a)
+{
+	if (a >= '0' && a <= '9')return true;
+	return false;
+}
+double cal()
+{
+	if (isDigit(str[idx][0]))
+	{
+		double num = string2num(str[idx]);
+		idx++;
+		return num;
+	}
+	switch (str[idx][0])
+	{
+		case '+':
+			idx++;
+			return cal() + cal();
+		case '-': 
+			idx++;
+			return cal() - cal();
+		case '*': 
+			idx++;
+			return cal() * cal();
+		case '/': 
+			idx++;
+			return cal() / cal();
+	}
+}
+int main()
+{
+	int i = 0;
+	while (cin >> str[i])i++;
+	cout << fixed << setprecision(6) << cal() << endl;
+}
