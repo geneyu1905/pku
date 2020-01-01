@@ -1,0 +1,55 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+using namespace std;
+int dp[101][101] = { 0 };
+int height[101][101] = { 0 };
+int direction[2][4] = { {0,0,1,-1},{1,-1,0,0} };
+int r, c;
+bool isValid(int i, int j)
+{
+	if (i < 1 || i > r || j < 1 || j > c)return false;
+	return true;
+}
+int dfs(int i, int j)
+{
+	if (dp[i][j])return dp[i][j];
+	int max1 = 0;
+	for (int k = 0; k < 4; k++)
+	{
+		int x = i + direction[0][k];
+		int y = j + direction[1][k];
+		{
+			if (isValid(x, y) && height[i][j] < height[x][y])
+			{
+				max1 = max(dfs(x,y) + 1, max1);
+			}
+		}
+	}
+	dp[i][j] = max1;
+	return max1;
+}
+int main()
+{
+	memset(height, -1, sizeof(height));
+	int max2 = 0;
+	cin >> r >> c;
+
+	for (int i = 1; i <= r; i++)
+	{
+		for (int j = 1; j <= c; j++)
+		{
+			cin >> height[i][j];
+		}
+	}
+
+	for (int i = 1; i <= r; i++)
+	{
+		for (int j = 1; j <= c; j++)
+		{
+			max2 = max(dfs(i, j) + 1, max2);
+		}
+	}
+
+	cout << max2 << endl;
+}
