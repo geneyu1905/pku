@@ -498,7 +498,19 @@ void pvcUI()
 // 算法
 void computer_move()
 {
-
+	for (int x0 = 0; x0 < GRIDSIZE; x0++)
+		for (int y0 = 0; y0 < GRIDSIZE; y0++)
+			for (int x1 = 0; x1 < GRIDSIZE; x1++)
+				for (int y1 = 0; y1 < GRIDSIZE; y1++)
+					for (int x2 = 0; x2 < GRIDSIZE; x2++)
+						for (int y2 = 0; y2 < GRIDSIZE; y2++)
+						{
+							if (isValid(x0, y0, x1, y1, x2, y2, -1 * currBotColor))
+							{
+								procStep(x0, y0, x1, y1, x2, y2, -1 * currBotColor);
+								return;
+							}
+						}
 }
 
 int main()
