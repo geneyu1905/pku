@@ -6,8 +6,6 @@
 
 #define GRIDSIZE 8
 #define OBSTACLE 2
-#define judge_black 0
-#define judge_white 1
 #define grid_black 1
 #define grid_white -1
 #define MAX_VAL 65000
@@ -24,6 +22,14 @@ int white[4][2];
 int dx[8] = { 1,0,1,1,0,-1,-1,-1 };
 int dy[8] = { 1,1,-1,0,-1,1,0,-1 };
 int dir[2][8] = { {1,1,1,0,0,-1,-1,-1},{0,1,-1,1,-1,0,1,-1} };
+
+//***********************************************************************************************************************************//
+bool inMap(int x, int y), isLined(int x0, int y0, int x1, int y1), isWay(int x0, int y0, int x1, int y1, int x2, int y2, int color);
+bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color), isDigit(string a), check_win(int coor[][2]);
+void mainMenu(), pvpMenu(), pvcMenu(), pvpUI(), pvcUI(), computer_move(),scanPosition();
+void procStep(int x0, int y0, int x1, int y1, int x2, int y2, int color), printTable();
+//***********************************************************************************************************************************//
+
 // 判断是否在地图内
 bool inMap(int x, int y)
 {
@@ -39,7 +45,7 @@ bool isLined(int x0, int y0, int x1, int y1)
 	return false;
 }
 
-//判断棋子的落点是否合法
+// 判断棋子的落点是否合法
 bool isWay(int x0, int y0, int x1, int y1, int x2, int y2, int color)
 {
 	if (color == OBSTACLE && x1 == x2 && y1 == y2)return true;
@@ -113,7 +119,7 @@ bool isWay(int x0, int y0, int x1, int y1, int x2, int y2, int color)
 	return true;
 }
 
-//检查步法是否合法
+// 检查步法是否合法
 bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color)
 {
 	if ((!inMap(x0, y0)) || (!inMap(x1, y1)) || (!inMap(x2, y2))) //任何一点不在棋盘内的话，就返回false
@@ -138,8 +144,8 @@ void procStep(int x0, int y0, int x1, int y1, int x2, int y2, int color)
 // 绘制棋盘 
 void printTable()
 {
+	system("cls");
 	int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-	int b1 = 0, w1 = 0;
 	cout << endl << endl;
 	cout << "    Black : @   White : O" << endl;
 	cout << "    ==================================" << endl;
@@ -150,18 +156,8 @@ void printTable()
 		cout << "  " << i << " |";
 		for (int j = 0; j < GRIDSIZE; j++)
 		{
-			if (gridInfo[i][j] == grid_black)
-			{
-				black[b1][0] = i;
-				black[b1++][1] = j;
-				cout << " @ |";
-			}
-			else if (gridInfo[i][j] == grid_white)
-			{
-				white[w1][0] = i;
-				white[w1++][1] = j;
-				cout << " O |";
-			}
+			if (gridInfo[i][j] == grid_black)cout << " @ |";
+			else if (gridInfo[i][j] == grid_white)cout << " O |";
 			else if (gridInfo[i][j] == OBSTACLE)cout << " # |";
 			else cout << "   |";
 		}
@@ -173,14 +169,37 @@ void printTable()
 	cout << "    ==================================" << endl;
 }
 
-//判断输入是否合法
+// 判断输入是否合法
 bool isDigit(string a)
 {
 	if (a.length() == 1 && a[0] >= '0' && a[0] <= '9')return true;
 	return false;
 }
 
-//判断游戏结束
+// 获取黑白棋的位置
+void scanPosition()
+{
+	int b1 = 0;
+	int w1 = 0;
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			if (gridInfo[i][j] == grid_black)
+			{
+				black[b1][0] = i;
+				black[b1++][1] = j;
+			}
+			else if (gridInfo[i][j] == grid_white)
+			{
+				white[w1][0] = i;
+				white[w1++][1] = j;
+			}
+		}
+	}
+}
+
+// 判断游戏结束
 bool check_win(int coor[][2])
 {
 	for (int i = 0; i < 4; i++)
@@ -199,24 +218,111 @@ bool check_win(int coor[][2])
 	return true;
 }
 
-//重启游戏
+// 初始化棋盘
 void resetGame()// 初始化棋盘
 {
+	currRound = 0;
 	memset(gridInfo, 0, sizeof(gridInfo));
 	gridInfo[0][2] = gridInfo[2][0] = gridInfo[5][0] = gridInfo[7][2] = grid_black;
 	gridInfo[0][5] = gridInfo[2][7] = gridInfo[5][7] = gridInfo[7][5] = grid_white;
-	printTable();
 }
 
-int main()
+// 界面
+void mainMenu()
 {
-	currBotColor = grid_white;
+	system("CLS");
+	cout << endl;
+	cout << endl;
+	cout << "         =================================" << endl;
+	cout << "         |       Welcome to Amazons!     |" << endl;
+	cout << "         |===============================|" << endl;
+	cout << "         |    GAMEPLAY MODE       INPUT  |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         |  Player vs Player           1 |" << endl;
+	cout << "         |  Player vs Bot              2 |" << endl;
+	cout << "         |  Exit                       3 |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         =================================" << endl;
+	cout << "         Please Enter:";
+	string n;
+	cin >> n;
+	if (n == "1")return pvpMenu();
+	else if (n == "2")return pvcMenu();
+	else if (n == "3")return;
+	else return mainMenu();
+}
+void pvpMenu()
+{
+	system("CLS");
+	cout << endl;
+	cout << endl;
+	cout << "         =================================" << endl;
+	cout << "         |        Player vs Player       |" << endl;
+	cout << "         |===============================|" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         |  New Game                   1 |" << endl;
+	cout << "         |  Load Game                  2 |" << endl;
+	cout << "         |  Return                     3 |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         =================================" << endl;
+	cout << "         Please Enter: ";
+	string n;
+	cin >> n;
+	if (n == "1")return pvpUI();
+	else if (n == "2")return pvpUI();
+	else if (n == "3")return mainMenu();
+	return pvpMenu();
+}
+void pvcMenu()
+{
+	system("CLS");
+	cout << endl;
+	cout << endl;
+	cout << "         =================================" << endl;
+	cout << "         |          Player vs Bot        |" << endl;
+	cout << "         |===============================|" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         |  New Game                   1 |" << endl;
+	cout << "         |  Load Game                  2 |" << endl;
+	cout << "         |  Return                     3 |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         =================================" << endl;
+	cout << "         Please Enter: ";
+	string n;
+	cin >> n;
+	if (n == "1")return pvcUI();
+	else if (n == "2")return pvcUI();
+	else if (n == "3")return mainMenu();
+	return pvcMenu();
+}
+void pvpUI()
+{
+	currRound = 0;
+	system("cls");
+	cout << "                  Player vs Player         " << endl;
+	cout << "         ==================================" << endl;
+	cout << "                White: 1    Black: 2      " << endl;
+	cout << "         ==================================" << endl;
+	cout << "         Please Select Your Side: ";
+	string n;
+	cin >> n;
+	if (n == "1")currBotColor = grid_white;
+	else if (n == "2")currBotColor = grid_black;
+	else
+	{
+		cout << "    Invalid Input!" << endl;
+		system("pause");
+		system("cls");
+		return pvcUI();
+	}
 	resetGame();
 	while (true)
 	{
 		string temp1, temp2;
 		bool flag = true;
 		int coor[2][3] = { 0 };
+		system("cls");
+		printTable();
 		cout << "    Please Enter:";
 		for (int i = 0; i < 3; i++)
 		{
@@ -227,10 +333,12 @@ int main()
 				cout << "    ==================================" << endl;
 				cout << "           The game is resetted.      " << endl;
 				cout << "    ==================================" << endl;
+				system("pause");
 				resetGame();
 				flag = false;
 				break;
 			}
+			else if (temp1 == "menu")return mainMenu();
 			cin >> temp2;
 			if (!isDigit(temp1) || !isDigit(temp2))
 			{
@@ -249,8 +357,7 @@ int main()
 			procStep(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor);
 			currBotColor = -1 * currBotColor;
 			currRound++;
-			system("cls");
-			printTable();
+			scanPosition();
 			if (check_win(white))
 			{
 				cout << "    ==================================" << endl;
@@ -273,5 +380,128 @@ int main()
 			cout << "    ==================================" << endl;
 		}
 	}
-	return 0;
+	system("pause");
+	return mainMenu();
+}
+void pvcUI()
+{
+	currRound = 0;
+	system("cls");
+	cout << "                    Player vs Bot          " << endl;
+	cout << "         ==================================" << endl;
+	cout << "                White: 1    Black: 2      " << endl;
+	cout << "         ==================================" << endl;
+	cout << "         Please Select Your Side: ";
+	string n;
+	cin >> n;
+	if (n == "1")currBotColor = grid_white;
+	else if (n == "2")currBotColor = grid_black;
+	else
+	{
+		cout << "    Invalid Input!" << endl;
+		system("pause");
+		return pvcUI();
+	}
+	int det = 0;
+	resetGame();
+	if (currBotColor == grid_black)det = 1;
+	while (true)
+	{
+		if (det % 2 == 0)
+		{
+			system("cls");
+			printTable();
+			string temp1, temp2;
+			bool flag = true;
+			int coor[2][3] = { 0 };
+			cout << "    Please Enter:";
+			for (int i = 0; i < 3; i++)
+			{
+				cin >> temp1;
+				if (temp1 == "reset")
+				{
+					system("cls");
+					cout << "    ==================================" << endl;
+					cout << "           The game is resetted.      " << endl;
+					cout << "    ==================================" << endl;
+					resetGame();
+					flag = false;
+					break;
+				}
+				else if (temp1 == "menu")return mainMenu();
+				cin >> temp2;
+				if (!isDigit(temp1) || !isDigit(temp2))
+				{
+					cout << "    ==================================" << endl;
+					cout << "               Invalid Input!         " << endl;
+					cout << "    ==================================" << endl;
+					flag = false;
+					break;
+				}
+				coor[0][i] = temp1[0] - '0';
+				coor[1][i] = temp2[0] - '0';
+			}
+			if (!flag)continue;
+			if (isValid(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor))
+			{
+				procStep(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor);
+				det++;
+				currRound++;
+				scanPosition();
+				if (check_win(white))
+				{
+					cout << "    ==================================" << endl;
+					cout << "               White Wins!            " << endl;
+					cout << "    ==================================" << endl;
+					break;
+				}
+				else if (check_win(black))
+				{
+					cout << "    ==================================" << endl;
+					cout << "               Black Wins!            " << endl;
+					cout << "    ==================================" << endl;
+					break;
+				}
+			}
+			else
+			{
+				cout << "    ==================================" << endl;
+				cout << "               Invalid Move!          " << endl;
+				cout << "    ==================================" << endl;
+			}
+		}
+		else
+		{
+			computer_move();
+			currRound++;
+			det++;
+			scanPosition();
+			if (check_win(white))
+			{
+				cout << "    ==================================" << endl;
+				cout << "               White Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+			else if (check_win(black))
+			{
+				cout << "    ==================================" << endl;
+				cout << "               Black Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+		}
+	}
+	return mainMenu();
+}
+
+// 算法
+void computer_move()
+{
+
+}
+
+int main()
+{
+	mainMenu();
 }
