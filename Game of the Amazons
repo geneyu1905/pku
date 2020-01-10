@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 
 #define GRIDSIZE 8
 #define OBSTACLE 2
@@ -26,7 +27,7 @@ int dir[2][8] = { {1,1,1,0,0,-1,-1,-1},{0,1,-1,1,-1,0,1,-1} };
 //***********************************************************************************************************************************//
 bool inMap(int x, int y), isLined(int x0, int y0, int x1, int y1), isWay(int x0, int y0, int x1, int y1, int x2, int y2, int color);
 bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color), isDigit(string a), check_win(int coor[][2]);
-void mainMenu(), pvpMenu(), pvcMenu(), pvpUI(), pvcUI(), computer_move(),scanPosition();
+void mainMenu(), pvpMenu(), pvcMenu(), pvpUI(int a), pvcUI(int a), computer_move(),scanPosition(),savedPvp(),savedPvc(),loadPvp(),loadPvc();
 void procStep(int x0, int y0, int x1, int y1, int x2, int y2, int color), printTable();
 //***********************************************************************************************************************************//
 
@@ -268,8 +269,16 @@ void pvpMenu()
 	cout << "         Please Enter: ";
 	string n;
 	cin >> n;
-	if (n == "1")return pvpUI();
-	else if (n == "2")return pvpUI();
+	if (n == "1")
+	{
+		resetGame();
+		return pvpUI(1);
+	}
+	else if (n == "2")
+	{
+		loadPvp();
+		return pvpUI(2);
+	}
 	else if (n == "3")return mainMenu();
 	return pvpMenu();
 }
@@ -290,32 +299,41 @@ void pvcMenu()
 	cout << "         Please Enter: ";
 	string n;
 	cin >> n;
-	if (n == "1")return pvcUI();
-	else if (n == "2")return pvcUI();
+	if (n == "1")
+	{
+		resetGame();
+		return pvcUI(1);
+	}
+	else if (n == "2")
+	{
+		loadPvc();
+		return pvcUI(2);
+	}
 	else if (n == "3")return mainMenu();
 	return pvcMenu();
 }
-void pvpUI()
+void pvpUI(int a)
 {
-	currRound = 0;
-	system("cls");
-	cout << "                  Player vs Player         " << endl;
-	cout << "         ==================================" << endl;
-	cout << "                White: 1    Black: 2      " << endl;
-	cout << "         ==================================" << endl;
-	cout << "         Please Select Your Side: ";
-	string n;
-	cin >> n;
-	if (n == "1")currBotColor = grid_white;
-	else if (n == "2")currBotColor = grid_black;
-	else
+	if (a == 1)
 	{
-		cout << "    Invalid Input!" << endl;
-		system("pause");
 		system("cls");
-		return pvcUI();
+		cout << "                  Player vs Player         " << endl;
+		cout << "         ==================================" << endl;
+		cout << "                White: 1    Black: 2      " << endl;
+		cout << "         ==================================" << endl;
+		cout << "         Please Select Your Side: ";
+		string n;
+		cin >> n;
+		if (n == "1")currBotColor = grid_white;
+		else if (n == "2")currBotColor = grid_black;
+		else
+		{
+			cout << "    Invalid Input!" << endl;
+			system("pause");
+			system("cls");
+			return pvpUI(1);
+		}
 	}
-	resetGame();
 	while (true)
 	{
 		string temp1, temp2;
@@ -339,6 +357,11 @@ void pvpUI()
 				break;
 			}
 			else if (temp1 == "menu")return mainMenu();
+			else if (temp1 == "save")
+			{
+				savedPvp();
+				return mainMenu();
+			}
 			cin >> temp2;
 			if (!isDigit(temp1) || !isDigit(temp2))
 			{
@@ -383,27 +406,28 @@ void pvpUI()
 	system("pause");
 	return mainMenu();
 }
-void pvcUI()
+void pvcUI(int a)
 {
-	currRound = 0;
-	system("cls");
-	cout << "                    Player vs Bot          " << endl;
-	cout << "         ==================================" << endl;
-	cout << "                White: 1    Black: 2      " << endl;
-	cout << "         ==================================" << endl;
-	cout << "         Please Select Your Side: ";
-	string n;
-	cin >> n;
-	if (n == "1")currBotColor = grid_white;
-	else if (n == "2")currBotColor = grid_black;
-	else
+	if (a == 1)
 	{
-		cout << "    Invalid Input!" << endl;
-		system("pause");
-		return pvcUI();
+		system("cls");
+		cout << "                    Player vs Bot          " << endl;
+		cout << "         ==================================" << endl;
+		cout << "                White: 1    Black: 2      " << endl;
+		cout << "         ==================================" << endl;
+		cout << "         Please Select Your Side: ";
+		string n;
+		cin >> n;
+		if (n == "1")currBotColor = grid_white;
+		else if (n == "2")currBotColor = grid_black;
+		else
+		{
+			cout << "    Invalid Input!" << endl;
+			system("pause");
+			return pvcUI(1);
+		}
 	}
 	int det = 0;
-	resetGame();
 	if (currBotColor == grid_black)det = 1;
 	while (true)
 	{
@@ -429,6 +453,11 @@ void pvcUI()
 					break;
 				}
 				else if (temp1 == "menu")return mainMenu();
+				else if (temp1 == "save")
+				{
+					savedPvc();
+					return mainMenu();
+				}
 				cin >> temp2;
 				if (!isDigit(temp1) || !isDigit(temp2))
 				{
@@ -494,6 +523,64 @@ void pvcUI()
 	}
 	return mainMenu();
 }
+void savedPvc()
+{
+	fstream outfile("pvcmap.txt");
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			outfile << gridInfo[i][j] << " ";
+		}
+		outfile << endl;
+	}
+	outfile << currBotColor << endl;
+	outfile << currRound << endl;
+	outfile.close();
+}
+void savedPvp()
+{
+	fstream outfile("pvpmap.txt");
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			outfile << gridInfo[i][j] << " ";
+		}
+		outfile << endl;
+	}
+	outfile << currBotColor << endl;
+	outfile << currRound << endl;
+	outfile.close();
+}
+void loadPvc()
+{
+	fstream infile("pvcmap.txt", ios::in);
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			infile >> gridInfo[i][j];
+		}
+	}
+	infile >> currBotColor;
+	infile >> currRound;
+	infile.close();
+}
+void loadPvp()
+{
+	fstream infile("pvpmap.txt", ios::in);
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			infile >> gridInfo[i][j];
+		}
+	}
+	infile >> currBotColor;
+	infile >> currRound;
+	infile.close();
+}
 
 // 算法
 void computer_move()
@@ -512,7 +599,6 @@ void computer_move()
 							}
 						}
 }
-
 int main()
 {
 	mainMenu();
