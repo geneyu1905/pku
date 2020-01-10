@@ -1,12 +1,8 @@
-// 亚马逊棋（Amazons）简单交互样例程序
-// 随机策略（由zhouhy修改）
-// 作者：dgf123/syys
-// 游戏信息：http://www.botzone.org/games#Amazons
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <cstdlib>
 #include <ctime>
-
 
 #define GRIDSIZE 8
 #define OBSTACLE 2
@@ -14,258 +10,268 @@
 #define judge_white 1
 #define grid_black 1
 #define grid_white -1
+#define MAX_VAL 65000
+#define MIN_VAL -65000
 
 using namespace std;
 
 int currBotColor; // 我所执子颜色（1为黑，-1为白，棋盘状态亦同）
-int gridInfo[GRIDSIZE][GRIDSIZE] = { 0 }; // 先x后y，记录棋盘状态
+int gridInfo[GRIDSIZE][GRIDSIZE] = { 0 };
 int temp[GRIDSIZE][GRIDSIZE] = { 0 };
-int dx[] = { -1,-1,-1,0,0,1,1,1 };
-int dy[] = { -1,0,1,-1,1,-1,0,1 };
-
+int currRound = 0;
+int black[4][2];
+int white[4][2];
+int dx[8] = { 1,0,1,1,0,-1,-1,-1 };
+int dy[8] = { 1,1,-1,0,-1,1,0,-1 };
+int dir[2][8] = { {1,1,1,0,0,-1,-1,-1},{0,1,-1,1,-1,0,1,-1} };
 // 判断是否在地图内
-inline bool inMap(int x, int y)
+bool inMap(int x, int y)
 {
 	if (x < 0 || x >= GRIDSIZE || y < 0 || y >= GRIDSIZE)
 		return false;
 	return true;
 }
-bool isWay(int x0, int y0, int x1, int y1,int x2, int y2, int color)
+
+//判断棋子与落点是否处于斜线
+bool isLined(int x0, int y0, int x1, int y1)
+{
+	if (abs(x1 - x0) == abs(y1 - y0))return true;
+	return false;
+}
+
+//判断棋子的落点是否合法
+bool isWay(int x0, int y0, int x1, int y1, int x2, int y2, int color)
 {
 	if (color == OBSTACLE && x1 == x2 && y1 == y2)return true;
 	if (x0 == x1 && y0 == y1)return false; //如果重叠
-	if (gridInfo[x1][y1] != 0)return false; //如果已经被占领
-	if (x1 != x0 && y1 == y0)
+	if (gridInfo[y1][x1] != 0)return false; //如果已经被占领
+
+	if (x0 == x1) //直线
 	{
-		if (x1 < x0)
+		if (y1 - y0 > 0)
 		{
-			for (int a = x0 - 1; a >= x1; a--)//上面--同一列不同行找可以走到哪里
+			for (int i = y0 + 1; i <= y1; i++)
 			{
-				if (gridInfo[a][y0] != 0)return false;
+				if (gridInfo[i][x0] != 0)return false;
 			}
 		}
-		if (x1 > x0)
+		else
 		{
-			for (int a = x0 + 1; a <= x1; a++)//下面--同一列不同行找可以走到哪里
+			for (int i = y1; i < y0; i++)
 			{
-				if (gridInfo[a][y0] != 0)return false;
+				if (gridInfo[i][x0] != 0)return false;
 			}
 		}
 	}
-
-	if (x1 == x0 && y1 != y0)
+	if (y0 == y1) //横线
 	{
-		if (y1 < y0)
+		if (x1 - x0 > 0)
 		{
-			for (int a = y0 - 1; a >= y1; a--)//左边--同一行不同列找可以走到哪里
+			for (int i = x0 + 1; i <= x1; i++)
 			{
-				if (gridInfo[x0][a] != 0)return false;
+				if (gridInfo[y0][i] != 0)return false;
 			}
 		}
-		if (y1 > y0)
+		else
 		{
-			for (int a = y0 + 1; a <= y1; a++)//右边--同一行不同列找可以走到哪里
+			for (int i = x1; i < x0; i++)
 			{
-				if (gridInfo[x0][a] != 0)return false;
+				if (gridInfo[y0][i] != 0)return false;
 			}
 		}
 	}
-
-	if (x1 > x0 && y1 > y0)
+	if (x1 != x0 && y1 != y0 && !isLined(x0, y0, x1, y1))return false;
+	int gap = abs(y1 - y0);
+	if (x1 - x0 > 0 && y1 - y0 > 0)
 	{
-
-		int right_bottom_temp = x0 + y0;//判断右下对角线 (加2）
-		for (int a = x0 + 1; a <= x1; a++)
+		for (int i = 1; i <= gap; i++)
 		{
-			for (int b = y0 + 1; b <= y1; b++)
-			{
-				if (a + b == 2 + right_bottom_temp)
-				{
-					right_bottom_temp += 2;
-					if (gridInfo[a][b] != 0)return false;
-				}
-				else
-				{
-					return false;
-				}
-			}
+			if (gridInfo[y0 + i][x0 + i] != 0)return false;
 		}
 	}
-
-	if (x1 < x0 && y1 > y0)
+	if (x1 - x0 > 0 && y1 - y0 < 0)
 	{
-		int right_top_temp = x0 + y0; //判断右上角（同数）
+		for (int i = 1; i <= gap; i++)
 		{
-			for (int a = x0 - 1; a >= x1; a--)
-			{
-				for (int b = y0 + 1; b <= y1; b++)
-				{
-					if (a + b == right_top_temp)
-					{
-						if (gridInfo[a][b] != 0)return false;
-					}
-					else
-					{
-						return false;
-					}
-				}
-			}
+			if (gridInfo[y0 - i][x0 + i] != 0)return false;
 		}
 	}
-
-	if (x1 < x0 && y1 < y0)
+	if (x1 - x0 < 0 && y1 - y0 > 0)
 	{
-		int left_top_temp = x0 + y0;//判断左上对角线 (加2）
-		for (int a = x0 - 1; a >= x1; a--)
+		for (int i = 1; i <= gap; i++)
 		{
-			for (int b = y0 - 1; b >= y1; b--)
-			{
-				if (a + b == 2 + left_top_temp)
-				{
-					left_top_temp += 2;
-
-					if (gridInfo[a][b] != 0)return false;
-				}
-				else
-				{
-					return false;
-				}
-			}
+			if (gridInfo[y0 + i][x0 - i] != 0)return false;
 		}
 	}
-
-	if (x1 > x0&& y1 < y0)
+	if (x1 - x0 < 0 && y1 - y0 < 0)
 	{
-		int left_bottom_temp = x0 + y0;//判断左下对角线（同数）
-		for (int a = x0 + 1; a <= x1; a++)
+		for (int i = 1; i <= gap; i++)
 		{
-			for (int b = y0 - 1; b >= y0; b--)
-			{
-				if (a + b == left_bottom_temp)
-				{
-					if (gridInfo[a][b] != 0)return false;
-				}
-				else
-				{
-					return false;
-				}
-			}
+			if (gridInfo[y0 - i][x0 - i] != 0)return false;
 		}
 	}
-
 	return true;
-
 }
 
+//检查步法是否合法
 bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color)
 {
 	if ((!inMap(x0, y0)) || (!inMap(x1, y1)) || (!inMap(x2, y2))) //任何一点不在棋盘内的话，就返回false
 		return false;
-	if (gridInfo[x0][y0] != color || gridInfo[x1][y1] != 0) //自己的棋子不在选择的起点上或者要去的地方已经被占领了，就返回false
+	if (gridInfo[y0][x0] != color || gridInfo[y1][x1] != 0) //自己的棋子不在选择的起点上或者要去的地方已经被占领了，就返回false
 		return false;
-	if ((gridInfo[x2][y2] != 0) && !(x2 == x0 && y2 == y0)) //选择的障碍位置已经被占领，除非障碍位置是自己的起始位置
+	if ((gridInfo[y2][x2] != 0) && !(x2 == x0 && y2 == y0)) //选择的障碍位置已经被占领，除非障碍位置是自己的起始位置
 		return false;
-	if (!(isWay(x0, y0, x1, y1,x2,y2,color) && isWay(x1, y1, x2, y2,x0,y0, OBSTACLE))) //如果是非法步法,返回false
+	if (!(isWay(x0, y0, x1, y1, x2, y2, color) && isWay(x1, y1, x2, y2, x0, y0, OBSTACLE))) //如果是非法步法,返回false
 		return false;
-	return true;
-}
-// 在坐标处落子，检查是否合法或模拟落子
-bool ProcStep(int x0, int y0, int x1, int y1, int x2, int y2, int color, bool check_only)
-{
-	if (!check_only) //移动棋子
-	{
-		gridInfo[x0][y0] = 0;
-		gridInfo[x1][y1] = color;
-		gridInfo[x2][y2] = OBSTACLE;
-	}
 	return true;
 }
 
+// 在坐标处落子
+void procStep(int x0, int y0, int x1, int y1, int x2, int y2, int color)
+{
+	gridInfo[y0][x0] = 0;
+	gridInfo[y1][x1] = color;
+	gridInfo[y2][x2] = OBSTACLE;
+}
 
 // 绘制棋盘 
-void PrintTable()
+void printTable()
 {
-	cout << endl << "   ";
+	int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+	int b1 = 0, w1 = 0;
+	cout << endl << endl;
+	cout << "    Black : @   White : O" << endl;
+	cout << "    ==================================" << endl;
+	cout << "      0   1   2   3   4   5   6   7  " << endl;
+	cout << "    ==================================" << endl;
 	for (int i = 0; i < GRIDSIZE; i++)
 	{
-		cout << "   " << i << "  ";
-	}
-	cout << endl;
-	for (int i = 0; i < GRIDSIZE; i++)
-	{
-		cout << "  |";
-		for (int j = 0; j < GRIDSIZE; j++)
-		{
-			cout << "|-----";
-		}
-		cout << "||" << endl << " " << i << "|";
+		cout << "  " << i << " |";
 		for (int j = 0; j < GRIDSIZE; j++)
 		{
 			if (gridInfo[i][j] == grid_black)
 			{
-				cout << "|  B  ";
+				black[b1][0] = i;
+				black[b1++][1] = j;
+				cout << " @ |";
 			}
 			else if (gridInfo[i][j] == grid_white)
 			{
-				cout << "|  W  ";
+				white[w1][0] = i;
+				white[w1++][1] = j;
+				cout << " O |";
 			}
-			else if (gridInfo[i][j] == OBSTACLE)
+			else if (gridInfo[i][j] == OBSTACLE)cout << " # |";
+			else cout << "   |";
+		}
+		cout << endl << "    ==================================" << endl;
+	}
+	cout << "    ==================================" << endl;
+	cout << "     Round " << currRound << "           ";
+	cout << (currBotColor == grid_white ? " White's turn" : " Black's turn") << endl;
+	cout << "    ==================================" << endl;
+}
+
+//判断输入是否合法
+bool isDigit(string a)
+{
+	if (a.length() == 1 && a[0] >= '0' && a[0] <= '9')return true;
+	return false;
+}
+
+//判断游戏结束
+bool check_win(int coor[][2])
+{
+	for (int i = 0; i < 4; i++)
+	{
+
+		for (int j = 0; j < 8; j++)
+		{
+			int y1 = coor[i][0] + dir[0][j];
+			int x1 = coor[i][1] + dir[1][j];
+			if (!(!inMap(x1,y1) || gridInfo[y1][x1] != 0))
 			{
-				cout << "|  #  ";
-			}
-			else
-			{
-				cout << "|     ";
+				return false;
 			}
 		}
-		cout << "||" << endl;
 	}
-	cout << "  |";
-	for (int i = 0; i < GRIDSIZE; i++)
-	{
-		cout << "|-----";
-	}
-	cout << "||\n" << endl;
+	return true;
+}
+
+//重启游戏
+void resetGame()// 初始化棋盘
+{
+	memset(gridInfo, 0, sizeof(gridInfo));
+	gridInfo[0][2] = gridInfo[2][0] = gridInfo[5][0] = gridInfo[7][2] = grid_black;
+	gridInfo[0][5] = gridInfo[2][7] = gridInfo[5][7] = gridInfo[7][5] = grid_white;
+	printTable();
 }
 
 int main()
 {
-	int x0, y0, x1, y1, x2, y2;
-
-	// 初始化棋盘
-	gridInfo[0][(GRIDSIZE - 1) / 3] = gridInfo[(GRIDSIZE - 1) / 3][0]
-		= gridInfo[GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)][0]
-		= gridInfo[GRIDSIZE - 1][(GRIDSIZE - 1) / 3] = grid_black;
-	gridInfo[0][GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)] = gridInfo[(GRIDSIZE - 1) / 3][GRIDSIZE - 1]
-		= gridInfo[GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)][GRIDSIZE - 1]
-		= gridInfo[GRIDSIZE - 1][GRIDSIZE - 1 - ((GRIDSIZE - 1) / 3)] = grid_white;
-
-
-	int turnID;
-	cout << "请输入局数:";
-	cin >> turnID;
-	system("cls");
-	PrintTable();
-
-	currBotColor = grid_white; // 先假设自己是黑方
-	for (int i = 1; i <= turnID; i++)
+	currBotColor = grid_white;
+	resetGame();
+	while (true)
 	{
-		if (i % 2 == 0)currBotColor = grid_white; // 每局换人
-		else currBotColor = grid_black;
-		cout << (currBotColor == grid_white ? "当前为白方走步，请输入：" : "当前为黑方走步,请输入: ");
-		cin >> x0 >> y0 >> x1 >> y1 >> x2 >> y2;
-		if (isValid(x0, y0, x1, y1, x2, y2, currBotColor))
+		string temp1, temp2;
+		bool flag = true;
+		int coor[2][3] = { 0 };
+		cout << "    Please Enter:";
+		for (int i = 0; i < 3; i++)
 		{
-			ProcStep(x0, y0, x1, y1, x2, y2, currBotColor, false);
+			cin >> temp1;
+			if (temp1 == "reset")
+			{
+				system("cls");
+				cout << "    ==================================" << endl;
+				cout << "           The game is resetted.      " << endl;
+				cout << "    ==================================" << endl;
+				resetGame();
+				flag = false;
+				break;
+			}
+			cin >> temp2;
+			if (!isDigit(temp1) || !isDigit(temp2))
+			{
+				cout << "    ==================================" << endl;
+				cout << "               Invalid Input!         " << endl;
+				cout << "    ==================================" << endl;
+				flag = false;
+				break;
+			}
+			coor[0][i] = temp1[0] - '0';
+			coor[1][i] = temp2[0] - '0';
 		}
-
+		if (!flag)continue;
+		if (isValid(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor))
+		{
+			procStep(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor);
+			currBotColor = -1 * currBotColor;
+			currRound++;
+			system("cls");
+			printTable();
+			if (check_win(white))
+			{
+				cout << "    ==================================" << endl;
+				cout << "               White Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+			else if (check_win(black))
+			{
+				cout << "    ==================================" << endl;
+				cout << "               Black Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+		}
 		else
 		{
-			cout << "非法走步，请重试!\n" << endl;
-			i--;
+			cout << "    ==================================" << endl;
+			cout << "               Invalid Move!          " << endl;
+			cout << "    ==================================" << endl;
 		}
-		system("cls");
-		PrintTable();
 	}
 	return 0;
 }
