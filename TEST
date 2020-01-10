@@ -1,0 +1,992 @@
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+
+#define GRIDSIZE 8
+#define OBSTACLE 2
+#define grid_black 1
+#define grid_white -1
+#define MAX_VAL 65000
+#define MIN_VAL -65000
+
+using namespace std;
+
+int currBotColor; // 我所执子颜色（1为黑，-1为白，棋盘状态亦同）
+int gridInfo[GRIDSIZE][GRIDSIZE] = { 0 };
+int temp[GRIDSIZE][GRIDSIZE] = { 0 };
+int currRound = 0;
+int black[4][2];
+int white[4][2];
+int dx[8] = { 1,0,1,1,0,-1,-1,-1 };
+int dy[8] = { 1,1,-1,0,-1,1,0,-1 };
+int dir[2][8] = { { 1,0,1,1,0,-1,-1,-1 }, { 1,1,-1,0,-1,1,0,-1 } };
+
+//***********************************************************************************************************************************//
+bool inMap(int x, int y), isLined(int x0, int y0, int x1, int y1), isWay(int x0, int y0, int x1, int y1, int x2, int y2, int color);
+bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color), isDigit(string a), check_win(int coor[][2]);
+void mainMenu(), pvpMenu(), pvcMenu(), pvpUI(int a), pvcUI(int a), computer_move(),scanPosition(),savedPvp(),savedPvc(),loadPvp(),loadPvc();
+void procStep(int x0, int y0, int x1, int y1, int x2, int y2, int color), printTable();
+//***********************************************************************************************************************************//
+
+// 判断是否在地图内
+bool inMap(int x, int y)
+{
+	if (x < 0 || x >= GRIDSIZE || y < 0 || y >= GRIDSIZE)
+		return false;
+	return true;
+}
+
+//判断棋子与落点是否处于斜线
+bool isLined(int x0, int y0, int x1, int y1)
+{
+	if (abs(x1 - x0) == abs(y1 - y0))return true;
+	return false;
+}
+
+// 判断棋子的落点是否合法
+bool isWay(int x0, int y0, int x1, int y1, int x2, int y2, int color)
+{
+	if (color == OBSTACLE && x1 == x2 && y1 == y2)return true;
+	if (x0 == x1 && y0 == y1)return false; //如果重叠
+	if (gridInfo[y1][x1] != 0)return false; //如果已经被占领
+
+	if (x0 == x1) //直线
+	{
+		if (y1 - y0 > 0)
+		{
+			for (int i = y0 + 1; i <= y1; i++)
+			{
+				if (gridInfo[i][x0] != 0)return false;
+			}
+		}
+		else
+		{
+			for (int i = y1; i < y0; i++)
+			{
+				if (gridInfo[i][x0] != 0)return false;
+			}
+		}
+	}
+	if (y0 == y1) //横线
+	{
+		if (x1 - x0 > 0)
+		{
+			for (int i = x0 + 1; i <= x1; i++)
+			{
+				if (gridInfo[y0][i] != 0)return false;
+			}
+		}
+		else
+		{
+			for (int i = x1; i < x0; i++)
+			{
+				if (gridInfo[y0][i] != 0)return false;
+			}
+		}
+	}
+	if (x1 != x0 && y1 != y0 && !isLined(x0, y0, x1, y1))return false;
+	int gap = abs(y1 - y0);
+	if (x1 - x0 > 0 && y1 - y0 > 0)
+	{
+		for (int i = 1; i <= gap; i++)
+		{
+			if (gridInfo[y0 + i][x0 + i] != 0)return false;
+		}
+	}
+	if (x1 - x0 > 0 && y1 - y0 < 0)
+	{
+		for (int i = 1; i <= gap; i++)
+		{
+			if (gridInfo[y0 - i][x0 + i] != 0)return false;
+		}
+	}
+	if (x1 - x0 < 0 && y1 - y0 > 0)
+	{
+		for (int i = 1; i <= gap; i++)
+		{
+			if (gridInfo[y0 + i][x0 - i] != 0)return false;
+		}
+	}
+	if (x1 - x0 < 0 && y1 - y0 < 0)
+	{
+		for (int i = 1; i <= gap; i++)
+		{
+			if (gridInfo[y0 - i][x0 - i] != 0)return false;
+		}
+	}
+	return true;
+}
+
+// 检查步法是否合法
+bool isValid(int x0, int y0, int x1, int y1, int x2, int y2, int color)
+{
+	if ((!inMap(x0, y0)) || (!inMap(x1, y1)) || (!inMap(x2, y2))) //任何一点不在棋盘内的话，就返回false
+		return false;
+	if (gridInfo[y0][x0] != color || gridInfo[y1][x1] != 0) //自己的棋子不在选择的起点上或者要去的地方已经被占领了，就返回false
+		return false;
+	if ((gridInfo[y2][x2] != 0) && !(x2 == x0 && y2 == y0)) //选择的障碍位置已经被占领，除非障碍位置是自己的起始位置
+		return false;
+	if (!(isWay(x0, y0, x1, y1, x2, y2, color) && isWay(x1, y1, x2, y2, x0, y0, OBSTACLE))) //如果是非法步法,返回false
+		return false;
+	return true;
+}
+
+// 在坐标处落子
+void procStep(int x0, int y0, int x1, int y1, int x2, int y2, int color)
+{
+	gridInfo[y0][x0] = 0;
+	gridInfo[y1][x1] = color;
+	gridInfo[y2][x2] = OBSTACLE;
+}
+
+// 绘制棋盘 
+void printTable()
+{
+	system("cls");
+	int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+	cout << endl << endl;
+	cout << "    Black : @   White : O" << endl;
+	cout << "    ==================================" << endl;
+	cout << "      0   1   2   3   4   5   6   7  " << endl;
+	cout << "    ==================================" << endl;
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		cout << "  " << i << " |";
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			if (gridInfo[i][j] == grid_black)cout << " @ |";
+			else if (gridInfo[i][j] == grid_white)cout << " O |";
+			else if (gridInfo[i][j] == OBSTACLE)cout << " # |";
+			else cout << "   |";
+		}
+		cout << endl << "    ==================================" << endl;
+	}
+	cout << "    ==================================" << endl;
+	cout << "     Round " << currRound << "           ";
+	cout << (currBotColor == grid_white ? " White's turn" : " Black's turn") << endl;
+	cout << "    ==================================" << endl;
+}
+
+// 判断输入是否合法
+bool isDigit(string a)
+{
+	if (a.length() == 1 && a[0] >= '0' && a[0] <= '9')return true;
+	return false;
+}
+
+// 获取黑白棋的位置
+void scanPosition()
+{
+	int b1 = 0;
+	int w1 = 0;
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			if (gridInfo[i][j] == grid_black)
+			{
+				black[b1][0] = i;
+				black[b1++][1] = j;
+			}
+			else if (gridInfo[i][j] == grid_white)
+			{
+				white[w1][0] = i;
+				white[w1++][1] = j;
+			}
+		}
+	}
+}
+
+// 判断游戏结束
+bool check_win(int coor[][2])
+{
+	for (int i = 0; i < 4; i++)
+	{
+
+		for (int j = 0; j < 8; j++)
+		{
+			int y1 = coor[i][0] + dir[0][j];
+			int x1 = coor[i][1] + dir[1][j];
+			if (!(!inMap(x1,y1) || gridInfo[y1][x1] != 0))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+// 初始化棋盘
+void resetGame()// 初始化棋盘
+{
+	currRound = 0;
+	memset(gridInfo, 0, sizeof(gridInfo));
+	gridInfo[0][2] = gridInfo[2][0] = gridInfo[5][0] = gridInfo[7][2] = grid_black;
+	gridInfo[0][5] = gridInfo[2][7] = gridInfo[5][7] = gridInfo[7][5] = grid_white;
+}
+
+// 界面
+void mainMenu()
+{
+	system("CLS");
+	cout << endl;
+	cout << endl;
+	cout << "         =================================" << endl;
+	cout << "         |       Welcome to Amazons!     |" << endl;
+	cout << "         |===============================|" << endl;
+	cout << "         |    GAMEPLAY MODE       INPUT  |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         |  Player vs Player           1 |" << endl;
+	cout << "         |  Player vs Bot              2 |" << endl;
+	cout << "         |  Exit                       3 |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         =================================" << endl;
+	cout << "         Please Enter:";
+	string n;
+	cin >> n;
+	if (n == "1")return pvpMenu();
+	else if (n == "2")return pvcMenu();
+	else if (n == "3")return;
+	else return mainMenu();
+}
+void pvpMenu()
+{
+	system("CLS");
+	cout << endl;
+	cout << endl;
+	cout << "         =================================" << endl;
+	cout << "         |        Player vs Player       |" << endl;
+	cout << "         |===============================|" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         |  New Game                   1 |" << endl;
+	cout << "         |  Load Game                  2 |" << endl;
+	cout << "         |  Return                     3 |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         =================================" << endl;
+	cout << "         Please Enter: ";
+	string n;
+	cin >> n;
+	if (n == "1")
+	{
+		resetGame();
+		return pvpUI(1);
+	}
+	else if (n == "2")
+	{
+		loadPvp();
+		return pvpUI(2);
+	}
+	else if (n == "3")return mainMenu();
+	return pvpMenu();
+}
+void pvcMenu()
+{
+	system("CLS");
+	cout << endl;
+	cout << endl;
+	cout << "         =================================" << endl;
+	cout << "         |          Player vs Bot        |" << endl;
+	cout << "         |===============================|" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         |  New Game                   1 |" << endl;
+	cout << "         |  Load Game                  2 |" << endl;
+	cout << "         |  Return                     3 |" << endl;
+	cout << "         |                               |" << endl;
+	cout << "         =================================" << endl;
+	cout << "         Please Enter: ";
+	string n;
+	cin >> n;
+	if (n == "1")
+	{
+		resetGame();
+		return pvcUI(1);
+	}
+	else if (n == "2")
+	{
+		loadPvc();
+		return pvcUI(2);
+	}
+	else if (n == "3")return mainMenu();
+	return pvcMenu();
+}
+void pvpUI(int a)
+{
+	if (a == 1)
+	{
+		system("cls");
+		cout << "                  Player vs Player         " << endl;
+		cout << "         ==================================" << endl;
+		cout << "                White: 1    Black: 2      " << endl;
+		cout << "         ==================================" << endl;
+		cout << "         Please Select Your Side: ";
+		string n;
+		cin >> n;
+		if (n == "1")currBotColor = grid_white;
+		else if (n == "2")currBotColor = grid_black;
+		else
+		{
+			cout << "    Invalid Input!" << endl;
+			system("pause");
+			system("cls");
+			return pvpUI(1);
+		}
+	}
+	while (true)
+	{
+		string temp1, temp2;
+		bool flag = true;
+		int coor[2][3] = { 0 };
+		system("cls");
+		printTable();
+		cout << "    Please Enter:";
+		for (int i = 0; i < 3; i++)
+		{
+			cin >> temp1;
+			if (temp1 == "reset")
+			{
+				system("cls");
+				cout << "    ==================================" << endl;
+				cout << "           The game is resetted.      " << endl;
+				cout << "    ==================================" << endl;
+				system("pause");
+				resetGame();
+				flag = false;
+				break;
+			}
+			else if (temp1 == "menu")return mainMenu();
+			else if (temp1 == "save")
+			{
+				savedPvp();
+				return mainMenu();
+			}
+			cin >> temp2;
+			if (!isDigit(temp1) || !isDigit(temp2))
+			{
+				cout << "    ==================================" << endl;
+				cout << "               Invalid Input!         " << endl;
+				cout << "    ==================================" << endl;
+				flag = false;
+				break;
+			}
+			coor[0][i] = temp1[0] - '0';
+			coor[1][i] = temp2[0] - '0';
+		}
+		if (!flag)continue;
+		if (isValid(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor))
+		{
+			procStep(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor);
+			currBotColor = -1 * currBotColor;
+			currRound++;
+			scanPosition();
+			if (check_win(white))
+			{
+				system("cls");
+				printTable();
+				cout << "    ==================================" << endl;
+				cout << "               White Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+			else if (check_win(black))
+			{
+				system("cls");
+				printTable();
+				cout << "    ==================================" << endl;
+				cout << "               Black Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+		}
+		else
+		{
+			cout << "    ==================================" << endl;
+			cout << "               Invalid Move!          " << endl;
+			cout << "    ==================================" << endl;
+			system("pause");
+		}
+	}
+	system("pause");
+	return mainMenu();
+}
+void pvcUI(int a)
+{
+	if (a == 1)
+	{
+		system("cls");
+		cout << "                    Player vs Bot          " << endl;
+		cout << "         ==================================" << endl;
+		cout << "                White: 1    Black: 2      " << endl;
+		cout << "         ==================================" << endl;
+		cout << "         Please Select Your Side: ";
+		string n;
+		cin >> n;
+		if (n == "1")currBotColor = grid_white;
+		else if (n == "2")currBotColor = grid_black;
+		else
+		{
+			cout << "    Invalid Input!" << endl;
+			system("pause");
+			return pvcUI(1);
+		}
+	}
+	int det = 0;
+	if (currBotColor == grid_black)det = 1;
+	while (true)
+	{
+		if (det % 2 == 0)
+		{
+			system("cls");
+			printTable();
+			string temp1, temp2;
+			bool flag = true;
+			int coor[2][3] = { 0 };
+			cout << "    Please Enter:";
+			for (int i = 0; i < 3; i++)
+			{
+				cin >> temp1;
+				if (temp1 == "reset")
+				{
+					system("cls");
+					cout << "    ==================================" << endl;
+					cout << "           The game is resetted.      " << endl;
+					cout << "    ==================================" << endl;
+					resetGame();
+					flag = false;
+					break;
+				}
+				else if (temp1 == "menu")return mainMenu();
+				else if (temp1 == "save")
+				{
+					savedPvc();
+					return mainMenu();
+				}
+				cin >> temp2;
+				if (!isDigit(temp1) || !isDigit(temp2))
+				{
+					cout << "    ==================================" << endl;
+					cout << "               Invalid Input!         " << endl;
+					cout << "    ==================================" << endl;
+					flag = false;
+					break;
+				}
+				coor[0][i] = temp1[0] - '0';
+				coor[1][i] = temp2[0] - '0';
+			}
+			if (!flag)continue;
+			if (isValid(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor))
+			{
+				procStep(coor[0][0], coor[1][0], coor[0][1], coor[1][1], coor[0][2], coor[1][2], currBotColor);
+				det++;
+				currRound++;
+				scanPosition();
+				if (check_win(white))
+				{
+					system("cls");
+					printTable();
+					cout << "    ==================================" << endl;
+					cout << "               White Wins!            " << endl;
+					cout << "    ==================================" << endl;
+					break;
+				}
+				else if (check_win(black))
+				{
+					system("cls");
+					printTable();
+					cout << "    ==================================" << endl;
+					cout << "               Black Wins!            " << endl;
+					cout << "    ==================================" << endl;
+					system("pause");
+					break;
+				}
+			}
+			else
+			{
+				cout << "    ==================================" << endl;
+				cout << "               Invalid Move!          " << endl;
+				cout << "    ==================================" << endl;
+				system("pause");
+			}
+		}
+		else
+		{
+			computer_move();
+			currRound++;
+			det++;
+			scanPosition();
+			if (check_win(white))
+			{
+				system("cls");
+				printTable();
+				cout << "    ==================================" << endl;
+				cout << "               White Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+			else if (check_win(black))
+			{
+				system("cls");
+				printTable();
+				cout << "    ==================================" << endl;
+				cout << "               Black Wins!            " << endl;
+				cout << "    ==================================" << endl;
+				break;
+			}
+		}
+	}
+	return mainMenu();
+}
+// Crys
+void savedPvc()
+{
+	fstream outfile("pvcmap.txt");
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			outfile << gridInfo[i][j] << " ";
+		}
+		outfile << endl;
+	}
+	outfile << currBotColor << endl;
+	outfile << currRound << endl;
+	outfile.close();
+}
+void savedPvp()
+{
+	fstream outfile("pvpmap.txt");
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			outfile << gridInfo[i][j] << " ";
+		}
+		outfile << endl;
+	}
+	outfile << currBotColor << endl;
+	outfile << currRound << endl;
+	outfile.close();
+}
+void loadPvc()
+{
+	fstream infile("pvcmap.txt", ios::in);
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			infile >> gridInfo[i][j];
+		}
+	}
+	infile >> currBotColor;
+	infile >> currRound;
+	infile.close();
+}
+void loadPvp()
+{
+	fstream infile("pvpmap.txt", ios::in);
+	for (int i = 0; i < GRIDSIZE; i++)
+	{
+		for (int j = 0; j < GRIDSIZE; j++)
+		{
+			infile >> gridInfo[i][j];
+		}
+	}
+	infile >> currBotColor;
+	infile >> currRound;
+	infile.close();
+}
+
+// 算法
+int n;
+double val0;
+int enddeep;
+int a[8][8] = { 0 }; //a现在棋盘 /*空格为0 我方棋子为1 对方棋子为2 障碍为-1*/
+int wx[4], wy[4], bx[4], by[4];//我方和敌方的坐标 
+int ansx1, ansx2, ansx3, ansy1, ansy2, ansy3;
+
+////////////////////////////////////////估值 
+int whiteKing[8][8], blackKing[8][8], whiteQueen[8][8], blackQueen[8][8], mm;
+int bj[8][8];
+int queuex[65], queuey[65], qdeep[65], top, end1;
+
+int create() // 重建现在的棋盘到a 保存敌我坐标到 mx my dx dy 
+{
+	cin >> n;
+	if (n < 12) enddeep = 1;
+	else if (n < 18) enddeep = 2;
+	else enddeep = 3;
+	int x1, y1, x2, y2, x3, y3;
+	cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+	if (x1 == -1)
+	{
+		if (n == 1)
+		{
+			cout << "5 0 5 6 2 3";
+			exit(0);
+		}
+		a[2][0] = a[5][0] = a[0][2] = a[7][2] = 1;
+		a[0][5] = a[7][5] = a[2][7] = a[5][7] = 2;
+	}
+	else
+	{
+		a[2][0] = a[5][0] = a[0][2] = a[7][2] = 2;
+		a[0][5] = a[7][5] = a[2][7] = a[5][7] = 1;
+		a[y2][x2] = a[y1][x1];
+		a[y1][x1] = 0;
+		a[y3][x3] = OBSTACLE;
+	}
+	for (int i = 1; i <= n * 2 - 2; i++)
+	{
+		cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+		a[y2][x2] = a[x1][y1];
+		a[y1][x1] = 0;
+		a[y3][x3] = OBSTACLE;
+	}
+	int wlink = 0, dlink = 0;
+	for (int i = 0; i < 8; i++)
+		for (int j = 0; j < 8; j++)
+		{
+			if (a[i][j] == grid_white)
+			{
+				wx[wlink] = j;
+				wy[wlink] = i;
+				wlink++;
+			}
+			if (a[i][j] == grid_black)
+			{
+				bx[dlink] = j;
+				by[dlink] = i;
+				dlink++;
+			}
+		}
+}
+double val()
+{
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			whiteKing[i][j] = blackKing[i][j] = whiteQueen[i][j] = blackQueen[i][j] = MAX_VAL;
+		}
+	}
+	double t1 = 0, t2 = 0, p1 = 0, p2 = 0, m = 0;
+	for (int z = 0; z < 4; z++)
+	{
+		memset(bj, 0, sizeof(bj));
+		top = 0;
+		end1 = 1;
+		queuex[0] = wx[z];
+		queuey[0] = wy[z];
+		qdeep[0] = 0;
+		bj[wx[z]][wy[z]] = 1;
+		while (top != end1)
+		{
+			int x = queuex[top];
+			int y = queuey[top];
+			int deep = qdeep[top];
+			whiteKing[y][x] = min(whiteKing[y][x], deep);
+			for (int i = 0; i < 8; i++)
+			{
+				int x1 = x + dir[1][i];
+				int y1 = y + dir[0][i];
+				if (!inMap(x1, y1)) continue;
+				if (bj[y1][x1]) continue;
+				if (a[y1][x1]) continue;
+				queuex[end1] = x1;
+				queuey[end1] = y1;
+				qdeep[end1] = deep + 1;
+				bj[y1][x1] = 1;
+				end1++;
+			}
+			top++;
+		}
+		whiteKing[wx[z]][wy[z]] = MAX_VAL;
+	}
+	for (int z = 0; z < 4; z++)
+	{
+		memset(bj, 0, sizeof(bj));
+		top = 0;
+		end1 = 1;
+		queuex[0] = bx[z];
+		queuey[0] = by[z];
+		qdeep[0] = 0;
+		bj[bx[z]][by[z]] = 1;
+		while (top != end1)
+		{
+			int x = queuex[top];
+			int y = queuey[top];
+			int deep = qdeep[top];
+			blackKing[y][x] = min(blackKing[y][x], deep);
+			for (int i = 0; i < 8; i++)
+			{
+				int x1 = x + dir[1][i];
+				int y1 = y + dir[0][i];
+				if (!inMap(x1, y1)) continue;
+				if (bj[y1][x1]) continue;
+				if (a[y1][x1]) continue;
+				queuex[end1] = x1;
+				queuey[end1] = y1;
+				qdeep[end1] = deep + 1;
+				bj[y1][x1] = 1;
+				end1++;
+			}
+			top++;
+		}
+		blackKing[bx[z]][by[z]] = MAX_VAL;
+	}
+	for (int z = 0; z < 4; z++)
+	{
+		memset(bj, 0, sizeof(bj));
+		top = 0;
+		end1 = 1;
+		queuex[0] = wx[z];
+		queuey[0] = wy[z];
+		qdeep[0] = 0;
+		bj[wx[z]][wy[z]] = 1;
+		while (top != end1)
+		{
+			int x = queuex[top];
+			int y = queuey[top];
+			int deep = qdeep[top];
+			whiteQueen[x][y] = min(whiteQueen[x][y], deep);
+			for (int i = 0; i < 8; i++)
+			{
+				for (int p = 1;; p++)
+				{
+					int x1 = x + p * dir[1][i];
+					int y1 = y + p * dir[0][i];
+					if (!inMap(x1, y1)) break;
+					if (bj[x1][y1]) continue;
+					if (a[x1][y1]) break;
+					queuex[end1] = x1;
+					queuey[end1] = y1;
+					qdeep[end1] = deep + 1;
+					bj[x1][y1] = 1;
+					end1++;
+				}
+			}
+			top++;
+		}
+		whiteQueen[wx[z]][wy[z]] = MAX_VAL;
+	}
+	for (int z = 0; z < 4; z++)
+	{
+		memset(bj, 0, sizeof(bj));
+		top = 0;
+		end1 = 1;
+		queuex[0] = dx[z];
+		queuey[0] = dy[z];
+		qdeep[0] = 0;
+		bj[bx[z]][by[z]] = 1;
+		while (top != end1)
+		{
+			int x = queuex[top];
+			int y = queuey[top];
+			int deep = qdeep[top];
+			blackQueen[x][y] = min(blackQueen[x][y], deep);
+			for (int i = 0; i < 8; i++)
+			{
+				for (int p = 1;; p++)
+				{
+					int x1 = x + p * dir[1][i];
+					int y1 = y + p * dir[0][i];
+					if (!inMap(x1, y1)) break;
+					if (bj[x1][y1]) continue;
+					if (a[x1][y1]) break;
+					queuex[end1] = x1;
+					queuey[end1] = y1;
+					qdeep[end1] = deep + 1;
+					bj[x1][y1] = 1;
+					end1++;
+				}
+			}
+			top++;
+		}
+		blackQueen[bx[z]][by[z]] = MAX_VAL;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			if (whiteQueen[j][i] > 1)continue;
+			mm = 0;
+			for (int p = 0; p < 8; p++)
+			{
+				if (!inMap(i + dir[0][p], j + dir[1][p])) continue;
+				if (a[i + dir[0][p]][j + dir[1][p]]) continue;
+				mm++;
+			}
+			m += mm / whiteKing[i][j];
+		}
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			if (whiteKing[i][j] > blackKing[i][j]) t1 += -1;
+			else if (whiteKing[i][j] < blackKing[i][j]) t1 += 1;
+			else if (whiteKing[i][j] == MAX_VAL) t1 += 0;
+			else t1 += 0.17;
+
+			if (whiteQueen[i][j] > blackQueen[i][j]) t2 += -1;
+			else if (whiteQueen[i][j] < blackQueen[i][j]) t2 += 1;
+			else if (whiteQueen[i][j] == MAX_VAL) t2 += 0;
+			else t2 += 0.17;
+
+			p1 += 2.0 * (pow(2.0, -1 * whiteQueen[i][j]) - pow(2.0, -1 * blackQueen[i][j]));
+
+			p2 += min(1.0, max(-1.0, (blackKing[i][j] - whiteKing[i][j]) / 6.0));
+		}
+	}
+	double vv;
+	if (n <= 7) vv = 0.24 * t1 + 0.47 * t2 + 0.13 * p1 + 0.13 * p2 + 0.20 * m;
+	else if (n <= 16) vv = 0.30 * t1 + 0.25 * t2 + 0.30 * p1 + 0.30 * p2 + 0.05 * m;
+	else vv = 0.8 * t1 + 0.1 * t2 + 0.1 * p1 + 0.1 * p2;
+	return vv;
+}
+
+double dfs(int deep, double lastmaxmin) // 深度优先搜索 + αβ剪枝 
+{
+	if (deep == enddeep) return val();
+	double maxmin;
+	///////////////////////////////////////////////////如果我方行棋
+	if (deep % 2 == 0)
+	{
+		maxmin = MIN_VAL;
+		int x1, y1, x2, y2, x3, y3;
+		for (int z = 0; z <= 3; z++)
+		{
+			x1 = wx[z];
+			y1 = wy[z];
+			for (int p = 0; p < 8; p++)
+			{
+				for (int i = 1;; i++)
+				{
+					x2 = x1 + i * dir[1][p];
+					y2 = y1 + i * dir[0][p];
+					if (!inMap(x2, y2)) break;
+					if (a[y2][x2]) break;
+
+					wx[z] = x2;
+					wy[z] = y2;
+					a[x1][y1] = 0;
+					a[x2][y2] = 1;
+					///////////////////////////////////释放障碍 
+					for (int p = 0; p < 8; p++)
+					{
+						for (int i = 1;; i++)
+						{
+							x3 = x2 + i * dir[1][p];
+							y3 = y2 + i * dir[0][p];
+							if (!inMap(x3, y3)) break;
+							if (a[y3][x3]) break;
+
+							a[y3][x3] = OBSTACLE;
+							double newval = dfs(deep + 1, maxmin);
+							a[y3][x3] = 0;
+							if (deep != 0) maxmin = max(newval, maxmin);
+							else if (newval > maxmin)
+							{
+								maxmin = newval;
+								if (isValid(x1, y1, x2, y2, x3, y3, -1 * currBotColor))
+								{
+									ansx1 = x1;
+									ansx2 = x2;
+									ansx3 = x3;
+									ansy1 = y1;
+									ansy2 = y2;
+									ansy3 = y3;
+								}
+							}
+							if (maxmin >= lastmaxmin)
+							{
+								a[y1][x1] = 1;
+								a[y2][x2] = 0;
+								wx[z] = x1;
+								wy[z] = y1;
+								return maxmin;
+							}
+						}
+					}
+					//////////////////////////////////释放障碍结束 
+					a[y1][x1] = 1;
+					a[y2][x2] = 0;
+					wx[z] = x1;
+					wy[z] = y1;
+				}
+			}
+		}
+		if (maxmin == MIN_VAL) return val();
+	}
+	///////////////////////////////////////////////////如果敌方行棋 
+	else
+	{
+		maxmin = MAX_VAL;
+		int x1, y1, x2, y2, x3, y3;
+		for (int z = 0; z <= 3; z++)
+		{
+			x1 = bx[z];
+			y1 = by[z];
+			for (int p = 0; p < 8; p++)
+			{
+				for (int i = 1;; i++)
+				{
+					x2 = x1 + i * dir[0][p];
+					y2 = y1 + i * dir[1][p];
+					if (!inMap(x2, y2)) break;
+					if (a[y2][x2]) break;
+
+					bx[z] = x2;
+					by[z] = y2;
+					a[y1][x1] = 0;
+					a[y2][x2] = grid_black;
+					///////////////////////////////////释放障碍 
+					for (int p = 0; p < 8; p++)
+					{
+						for (int i = 1;; i++)
+						{
+							x3 = x2 + i * dir[1][p];
+							y3 = y2 + i * dir[0][p];
+							if (!inMap(x3, y3)) break;
+							if (a[y3][x3]) break;
+
+							a[y3][x3] = OBSTACLE;
+							double newval = dfs(deep + 1, maxmin);
+							a[y3][x3] = 0;
+							maxmin = min(newval, maxmin);
+							if (maxmin <= lastmaxmin)
+							{
+								a[y1][x1] = grid_black;
+								a[y2][x2] = 0;
+								bx[z] = x1;
+								by[z] = y1;
+								return maxmin;
+							}
+						}
+					}
+					//////////////////////////////////释放障碍结束 
+					a[y1][x1] = grid_black;
+					a[y2][x2] = 0;
+					bx[z] = x1;
+					by[z] = y1;
+				}
+			}
+		}
+		if (maxmin == MAX_VAL) return val();
+	}
+	return maxmin;
+}
+void computer_move()
+{
+	create();
+	dfs(0, MAX_VAL);
+	cout << ansx1 << " " << ansy1 << " " << ansx2 << " " << ansy2 << " " << ansx3 << " " << ansy3 << endl;
+	system("pause");
+	procStep(ansx1,ansy1,ansx2,ansy2,ansx3,ansy3,-1 * currBotColor);
+}
+int main()
+{
+	mainMenu();
+}
