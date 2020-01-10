@@ -383,6 +383,8 @@ void pvpUI(int a)
 			scanPosition();
 			if (check_win(white))
 			{
+				system("cls");
+				printTable();
 				cout << "    ==================================" << endl;
 				cout << "               White Wins!            " << endl;
 				cout << "    ==================================" << endl;
@@ -390,6 +392,8 @@ void pvpUI(int a)
 			}
 			else if (check_win(black))
 			{
+				system("cls");
+				printTable();
 				cout << "    ==================================" << endl;
 				cout << "               Black Wins!            " << endl;
 				cout << "    ==================================" << endl;
@@ -401,6 +405,7 @@ void pvpUI(int a)
 			cout << "    ==================================" << endl;
 			cout << "               Invalid Move!          " << endl;
 			cout << "    ==================================" << endl;
+			system("pause");
 		}
 	}
 	system("pause");
@@ -479,6 +484,8 @@ void pvcUI(int a)
 				scanPosition();
 				if (check_win(white))
 				{
+					system("cls");
+					printTable();
 					cout << "    ==================================" << endl;
 					cout << "               White Wins!            " << endl;
 					cout << "    ==================================" << endl;
@@ -486,9 +493,12 @@ void pvcUI(int a)
 				}
 				else if (check_win(black))
 				{
+					system("cls");
+					printTable();
 					cout << "    ==================================" << endl;
 					cout << "               Black Wins!            " << endl;
 					cout << "    ==================================" << endl;
+					system("pause");
 					break;
 				}
 			}
@@ -497,6 +507,7 @@ void pvcUI(int a)
 				cout << "    ==================================" << endl;
 				cout << "               Invalid Move!          " << endl;
 				cout << "    ==================================" << endl;
+				system("pause");
 			}
 		}
 		else
@@ -507,6 +518,8 @@ void pvcUI(int a)
 			scanPosition();
 			if (check_win(white))
 			{
+				system("cls");
+				printTable();
 				cout << "    ==================================" << endl;
 				cout << "               White Wins!            " << endl;
 				cout << "    ==================================" << endl;
@@ -514,6 +527,8 @@ void pvcUI(int a)
 			}
 			else if (check_win(black))
 			{
+				system("cls");
+				printTable();
 				cout << "    ==================================" << endl;
 				cout << "               Black Wins!            " << endl;
 				cout << "    ==================================" << endl;
@@ -523,6 +538,7 @@ void pvcUI(int a)
 	}
 	return mainMenu();
 }
+// Crys
 void savedPvc()
 {
 	fstream outfile("pvcmap.txt");
